@@ -345,6 +345,8 @@ if energy_end > L3_L2_split then
   XASiso_L2 = Spectra.Sum(XAS_L2,{-1, -1, -1})
   XASiso_L3.Shift(E_2p)
   XASiso_L2.Shift(E_2p)
+  
+  XASiso_L3.Broaden(0.2, {{50,0.1}, {54.5,1.5},{76,1.5}})
 
   XASiso_L3.Print({{"file",filename1a}})
   print('Saved file ' .. filename1a)
