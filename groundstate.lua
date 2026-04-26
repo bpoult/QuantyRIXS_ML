@@ -269,8 +269,8 @@ F2_3d_3d = NewOperator('U', NFermions, IndexUp_3d, IndexDn_3d, {0, 1, 0})
 F4_3d_3d = NewOperator('U', NFermions, IndexUp_3d, IndexDn_3d, {0, 0, 1})
 
 
-F2_3d_3d_i = 12.6631 * scalef2_3d3d_i
-F4_3d_3d_i = 7.9165 * scalef4_3d3d_i
+F2_3d_3d_i = 12.663 * scalef2_3d3d_i
+F4_3d_3d_i = 7.917 * scalef4_3d3d_i
 F0_3d_3d_i = U_3d_3d_i + 2 / 63 * F2_3d_3d_i + 2 / 63 * F4_3d_3d_i
 
 
