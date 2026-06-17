@@ -119,6 +119,9 @@ for line in io.lines(config_name) do
       E_2p = tonumber(x[3])
     end
     -- Atomic RCN parameters (auto-populated by generate_inp_quanty.py)
+    if x[1] == 'NE_3d' then
+      NE_3d = tonumber(x[3])
+    end
     if x[1] == 'F2_3d3d_i_rcn' then
       F2_3d3d_i_rcn = tonumber(x[3])
     end
@@ -216,7 +219,7 @@ NBosons = 0
 NFermions = 16
 
 NE_2p = 6
-NE_3d = 6
+-- NE_3d is read from .inp_quanty (set by generate_inp_quanty.py via parse_rcn.py)
 
 IndexDn_2p = {0, 2, 4}
 IndexUp_2p = {1, 3, 5}

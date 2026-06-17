@@ -125,6 +125,8 @@ E_2p = {parameters_f['E_2p']}
 
 # Atomic RCN parameters — auto-looked up from RCNparameter.txt, do not edit manually
 # atom = {atom}, charge = {charge}, edge = {edge}
+# Number of 3d electrons (initial state)
+NE_3d = {rcn['NE_3d']}
 # Initial state (2p6 3dN): {atom}{charge}
 F2_3d3d_i_rcn = {rcn['F2_3d3d_i_rcn']}
 F4_3d3d_i_rcn = {rcn['F4_3d3d_i_rcn']}

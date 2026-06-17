@@ -94,6 +94,7 @@ def parse_rcn_parameters(atom: str, charge: str, edge: str, rcn_file) -> dict:
     Returns
     -------
     dict with keys:
+        NE_3d                                            (d-electron count, from initial-state line)
         F2_3d3d_i_rcn, F4_3d3d_i_rcn, zeta_3d_i_rcn   (from initial-state line)
         F2_3d3d_f_rcn, F4_3d3d_f_rcn,                  (from final-state line)
         F2_2p3d_rcn, G1_2p3d_rcn, G3_2p3d_rcn,         (from final-state line)
@@ -166,6 +167,8 @@ def parse_rcn_parameters(atom: str, charge: str, edge: str, rcn_file) -> dict:
         return params[key]
 
     return {
+        # --- electron count (read from initial-state line in RCNparameter.txt) ---
+        'NE_3d':          d_count,
         # --- initial state (2p6 3dN) ---
         'F2_3d3d_i_rcn':  _get(i_params, 'F2_3d3d',  init_tag),
         'F4_3d3d_i_rcn':  _get(i_params, 'F4_3d3d',  init_tag),
