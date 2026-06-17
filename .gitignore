@@ -2,4 +2,10 @@
 *.md
 !README.md
 
+# Jupyter
 Running_Quanty.ipynb
+.ipynb_checkpoints/
+
+# Python bytecode cache
+__pycache__/
+*.pyc
