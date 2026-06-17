@@ -3,12 +3,11 @@ from pathlib import Path
 def generate_inp_rixs(parameters_rixs, output_path, fname):
     """
     Generate .inp_rixs file with specified parameters.
-    
+
     Parameters:
     -----------
     parameters_rixs : dict
         RIXS parameters. Expected keys:
-        - initial_state
         - energy_start
         - energy_end
         - energy_step
@@ -21,6 +20,8 @@ def generate_inp_rixs(parameters_rixs, output_path, fname):
         - Eshift
         - L3_L2_split
         - pol
+
+        Note: initial_state has moved to parameters_setup in generate_inp_quanty.
     
     output_path : str or Path
         Path where the .inp_rixs file should be written
@@ -48,10 +49,7 @@ def generate_inp_rixs(parameters_rixs, output_path, fname):
     output_file.parent.mkdir(parents=True, exist_ok=True)
     
     # Template for the file
-    template = f"""# initial state, 1 = ground state
-initial_state = {parameters_rixs['initial_state']}
-
-###
+    template = f"""###
 energy_start = {parameters_rixs['energy_start']}
 energy_end = {parameters_rixs['energy_end']}
 energy_step = {parameters_rixs['energy_step']}
