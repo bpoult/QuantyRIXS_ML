@@ -104,6 +104,43 @@ for line in io.lines(config_name) do
     if x[1] == 'E_2p' then
       E_2p = tonumber(x[3])
     end
+    if x[1] == 'initial_state' then
+      initial_state = tonumber(x[3])
+    end
+    -- Atomic RCN parameters (auto-populated by generate_inp_quanty.py)
+    if x[1] == 'NE_3d' then
+      NE_3d = tonumber(x[3])
+    end
+    if x[1] == 'F2_3d3d_i_rcn' then
+      F2_3d3d_i_rcn = tonumber(x[3])
+    end
+    if x[1] == 'F4_3d3d_i_rcn' then
+      F4_3d3d_i_rcn = tonumber(x[3])
+    end
+    if x[1] == 'zeta_3d_i_rcn' then
+      zeta_3d_i_rcn = tonumber(x[3])
+    end
+    if x[1] == 'F2_3d3d_f_rcn' then
+      F2_3d3d_f_rcn = tonumber(x[3])
+    end
+    if x[1] == 'F4_3d3d_f_rcn' then
+      F4_3d3d_f_rcn = tonumber(x[3])
+    end
+    if x[1] == 'F2_2p3d_rcn' then
+      F2_2p3d_rcn = tonumber(x[3])
+    end
+    if x[1] == 'G1_2p3d_rcn' then
+      G1_2p3d_rcn = tonumber(x[3])
+    end
+    if x[1] == 'G3_2p3d_rcn' then
+      G3_2p3d_rcn = tonumber(x[3])
+    end
+    if x[1] == 'zeta_3d_f_rcn' then
+      zeta_3d_f_rcn = tonumber(x[3])
+    end
+    if x[1] == 'zeta_2p_rcn' then
+      zeta_2p_rcn = tonumber(x[3])
+    end
   end
 end
 print(' ')
@@ -122,9 +159,6 @@ for line in io.lines(spec_config_name) do
   if line ~= '' and string.sub(line,0,1) ~= '#' then
     local x = Split(line,' ')
     print(line)
-    if x[1] == 'initial_state' then
-      initial_state = tonumber(x[3])
-    end
     if x[1] == 'energy_start' then
       energy_start = tonumber(x[3])
     end
@@ -456,16 +490,16 @@ F2_2p_3d = NewOperator('U', NF, IndexUp_2p, IndexDn_2p, IndexUp_3d, IndexDn_3d, 
 G1_2p_3d = NewOperator('U', NF, IndexUp_2p, IndexDn_2p, IndexUp_3d, IndexDn_3d, {0, 0}, {1, 0})
 G3_2p_3d = NewOperator('U', NF, IndexUp_2p, IndexDn_2p, IndexUp_3d, IndexDn_3d, {0, 0}, {0, 1})
 
-F2_3d_3d_i = 12.663 * scalef2_3d3d_i
-F4_3d_3d_i = 7.917 * scalef4_3d3d_i
+F2_3d_3d_i = F2_3d3d_i_rcn * scalef2_3d3d_i
+F4_3d_3d_i = F4_3d3d_i_rcn * scalef4_3d3d_i
 F0_3d_3d_i = U_3d_3d_i + 2 / 63 * F2_3d_3d_i + 2 / 63 * F4_3d_3d_i
 
-F2_3d_3d_f = 13.422 * scalef2_3d3d_f
-F4_3d_3d_f = 8.395 * scalef4_3d3d_f
+F2_3d_3d_f = F2_3d3d_f_rcn * scalef2_3d3d_f
+F4_3d_3d_f = F4_3d3d_f_rcn * scalef4_3d3d_f
 F0_3d_3d_f = U_3d_3d_f + 2 / 63 * F2_3d_3d_f + 2 / 63 * F4_3d_3d_f
-F2_2p_3d_f = 7.900 * scalef2_2p3d
-G1_2p_3d_f = 5.951 * scaleg
-G3_2p_3d_f = 3.385 * scaleg
+F2_2p_3d_f = F2_2p3d_rcn * scalef2_2p3d
+G1_2p_3d_f = G1_2p3d_rcn * scaleg
+G3_2p_3d_f = G3_2p3d_rcn * scaleg
 F0_2p_3d_f = U_2p_3d_f + 1 / 15 * G1_2p_3d_f + 3 / 70 * G3_2p_3d_f
 
 H_i = H_i + Chop(
@@ -486,10 +520,10 @@ ldots_3d = NewOperator('ldots', NF, IndexUp_3d, IndexDn_3d)
 
 ldots_2p = NewOperator('ldots', NF, IndexUp_2p, IndexDn_2p)
 
-zeta_3d_i = 0.074 * scale_3dSOC_i
+zeta_3d_i = zeta_3d_i_rcn * scale_3dSOC_i
 
-zeta_3d_f = 0.092 * scale_3dSOC_f
-zeta_2p_f = 9.746 * scale_2pSOC
+zeta_3d_f = zeta_3d_f_rcn * scale_3dSOC_f
+zeta_2p_f = zeta_2p_rcn   * scale_2pSOC
 
 H_i = H_i + Chop(zeta_3d_i * ldots_3d)
 
@@ -521,9 +555,9 @@ Npsi=3
 -- electrons we need to define some restrictions
 -- We need to restrict the occupation of the Ni-2p shell to 6 for the ground state and for
 -- the Ni 3d-shell to 8.
-StartRestrictions = {NF, NB, {"111111 0000000000",6,6}, {"000000 1111111111",6,6}}
+StartRestrictions = {NF, NB, {"111111 0000000000",6,6}, {"000000 1111111111",NE_3d,NE_3d}}
 FinalRestrictions = {NF, NB, {'111111 0000000000', 6 - 1, 6 - 1},
-                                         {'000000 1111111111', 6 + 1, 6 + 1}}
+                                         {'000000 1111111111', NE_3d + 1, NE_3d + 1}}
 CalculationRestrictions = nil
 
  
