@@ -111,6 +111,22 @@ for line in io.lines(config_name) do
     if x[1] == 'E_2p' then
       E_2p = tonumber(x[3])
     end
+    if x[1] == 'initial_state' then
+      initial_state = tonumber(x[3])
+    end
+    -- Atomic RCN parameters (auto-populated by generate_inp_quanty.py)
+    if x[1] == 'NE_3d' then
+      NE_3d = tonumber(x[3])
+    end
+    if x[1] == 'F2_3d3d_i_rcn' then
+      F2_3d3d_i_rcn = tonumber(x[3])
+    end
+    if x[1] == 'F4_3d3d_i_rcn' then
+      F4_3d3d_i_rcn = tonumber(x[3])
+    end
+    if x[1] == 'zeta_3d_i_rcn' then
+      zeta_3d_i_rcn = tonumber(x[3])
+    end
   end
 end
 print(' ')
@@ -129,9 +145,6 @@ for line in io.lines(spec_config_name) do
   if line ~= '' and string.sub(line,0,1) ~= '#' then
     local x = Split(line,' ')
     print(line)
-    if x[1] == 'initial_state' then
-      initial_state = tonumber(x[3])
-    end
     if x[1] == 'energy_start' then
       energy_start = tonumber(x[3])
     end
@@ -184,7 +197,7 @@ H_f = 0
 NBosons = 0
 NFermions = 10
 
-NE_3d = 6
+-- NE_3d is read from .inp_quanty (set by generate_inp_quanty.py via parse_rcn.py)
 
 IndexDn_3d = {0,2,4,6,8}
 IndexUp_3d = {1,3,5,7,9}
@@ -269,8 +282,8 @@ F2_3d_3d = NewOperator('U', NFermions, IndexUp_3d, IndexDn_3d, {0, 1, 0})
 F4_3d_3d = NewOperator('U', NFermions, IndexUp_3d, IndexDn_3d, {0, 0, 1})
 
 
-F2_3d_3d_i = 12.663 * scalef2_3d3d_i
-F4_3d_3d_i = 7.917 * scalef4_3d3d_i
+F2_3d_3d_i = F2_3d3d_i_rcn * scalef2_3d3d_i
+F4_3d_3d_i = F4_3d3d_i_rcn * scalef4_3d3d_i
 F0_3d_3d_i = U_3d_3d_i + 2 / 63 * F2_3d_3d_i + 2 / 63 * F4_3d_3d_i
 
 
@@ -282,7 +295,7 @@ H_i = H_i + Chop(
 
 ldots_3d = NewOperator('ldots', NFermions, IndexUp_3d, IndexDn_3d)
 
-zeta_3d_i = 0.0739 * scale_3dSOC_i
+zeta_3d_i = zeta_3d_i_rcn * scale_3dSOC_i
 
 H_i = H_i + Chop(zeta_3d_i * ldots_3d)
 
