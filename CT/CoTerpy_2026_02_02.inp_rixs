@@ -1,0 +1,38 @@
+# initial state, 1 = ground state
+initial_state = 1
+
+###
+energy_start = 705
+energy_end = 730.01
+energy_step = 0.1
+#
+loss_start = -5
+loss_end = 20.01
+loss_step = 0.1
+
+### Broadening parameters
+# incident beam bandwidth
+FWHM_gauss1 = 0.3
+# additional gaussian broadening for XAS, e.g. vibronic
+FWHM_gauss1b = 0.5
+# RIXS spectrometer resolution
+FWHM_gauss2 = 0.4
+# additional gaussian broadening for RIXS, e.g. vibronic
+FWHM_gauss2b = 0.5
+# lifetime broadening at L3 edge
+FWHM_lorentz1 = 0.35
+# lifetime broadening at L2 edge
+FWHM_lorentz1b = 0.7
+# lifetime broadening of the valence states
+FWHM_lorentz2 = 0.0
+
+###
+Eshift = 0.0
+L3_L2_split = 717
+
+# This parameter are not used in Greens function calculation!
+# pol is the angle between incident polarization plane and scattering plane
+# 0 -> in pol-plane (horizontal)
+# pi/2 -> 90 deg out of pol-plane (vertical)
+# arccos(1/sqrt(3)) -> magic angle
+pol = 0
