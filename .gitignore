@@ -9,3 +9,6 @@ Running_Quanty.ipynb
 # Python bytecode cache
 __pycache__/
 *.pyc
+
+C:/
+.DS_Store
