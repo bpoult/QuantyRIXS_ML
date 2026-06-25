@@ -50,6 +50,23 @@ def run_quanty_sim(folder_path, lua_file="greenMLCT_Co3d6_D4h_RCN_conf_job.lua",
         destination = folder_path / lua_file
         shutil.copy2(source_file, destination)
         print(f"Copied {source_file} to {destination}")
+
+        with open(destination, 'r') as f:
+            lua_content = f.read()
+
+        # Find existing configuration files in destination folder
+        inp_quanty = [f for f in os.listdir(folder_path) if f.endswith('.inp_quanty')]
+        inp_rixs = [f for f in os.listdir(folder_path) if f.endswith('.inp_rixs')]
+
+        # Append two variables at the top of Lua file content with the String value of the names of the config files
+        lua_content = (
+            f'target_file_quanty = "{inp_quanty[0] if inp_quanty else ""}"\n'
+            f'target_file_rixs = "{inp_rixs[0] if inp_rixs else ""}"\n'
+        ) + lua_content
+
+        # Write into Lua file
+        with open(destination, 'w') as f:
+            f.write(lua_content)
     
     # Verify lua file exists in folder_path
     lua_path = folder_path / lua_file
