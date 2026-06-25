@@ -7,22 +7,33 @@ function Split(s, delimiter)
     return result;
 end
 
+-- function find_file_with_extension(extension)
+--     local handle
+
+--     -- Try different OS commands
+--     if package.config:sub(1,1) == '\\' then
+--         -- Windows
+--         handle = io.popen('dir /b *.' .. extension .. ' 2>nul')
+--     else
+--         -- Unix/Linux/Mac
+--         handle = io.popen('ls *.' .. extension .. ' 2>/dev/null')
+--     end
+
+--     if handle then
+--         local result = handle:read("*l")
+--         handle:close()
+--         return result
+--     end
+--     return nil
+-- end
+
+-- Will search for filename passed in from Python for matching extensions, and return either filename or nil
 function find_file_with_extension(extension)
-    local handle
-    
-    -- Try different OS commands
-    if package.config:sub(1,1) == '\\' then
-        -- Windows
-        handle = io.popen('dir /b *.' .. extension .. ' 2>nul')
-    else
-        -- Unix/Linux/Mac
-        handle = io.popen('ls *.' .. extension .. ' 2>/dev/null')
-    end
-    
-    if handle then
-        local result = handle:read("*l")
-        handle:close()
-        return result
+    -- filename is passed in from Python as a global variable
+    if target_file_quanty and target_file_quanty:match("%." .. extension .. "$") then
+        return target_file_quanty
+    elseif target_file_rixs and target_file_rixs:match("%." .. extension .. "$") then
+      return target_file_rixs
     end
     return nil
 end
