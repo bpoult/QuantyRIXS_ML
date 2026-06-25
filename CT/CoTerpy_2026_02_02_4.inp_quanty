@@ -1,0 +1,54 @@
+# Number of valence and final states to calculate
+# These parameters are not used in Greens function calculation!
+NPsi_Initial = 600
+NPsi_Final = 600
+
+# Ligand field parameters
+tenDq_3d_i = 3.3
+tenDq_3d_f = 2.8
+
+Ds_3d_i = 0.18
+Ds_3d_f = 0.165
+
+Dt_3d_i = 0.06
+Dt_3d_f = 0.055
+
+# Scaling of Slater integrals
+scale_i = 0.6
+scale_f = 0.6
+
+# Monopole electron-electron interactions
+U_3d_3d_i = 5.0
+U_3d_3d_f = 5.0
+U_2p_3d_f = 6.0
+
+# Oh splitting of ligand orbitals (LMCT)
+tenDq_L1_i = 0.4
+tenDq_L1_f = 0.4
+
+# Charge-transfer parameters for occupied orbitals (LMCT)
+Delta_3d_L1_i = 0.7
+Delta_3d_L1_f = -0.3
+
+Veg_3d_L1_i = 3.6
+Vt2g_3d_L1_i = 0.9
+
+Veg_3d_L1_f = 3.3
+Vt2g_3d_L1_f = 0.8
+
+# Oh splitting of unoccupied ligand orbitals (MLCT)
+tenDq_L2_i = 0.0
+tenDq_L2_f = 0.0
+
+# Charge-transfer parameters for unoccupied orbitals (MLCT)
+Delta_3d_L2_i = 3.2
+Delta_3d_L2_f = 4.2
+
+Veg_3d_L2_i = 0.0
+Vt2g_3d_L2_i = 1.2
+
+Veg_3d_L2_f = 0.0
+Vt2g_3d_L2_f = 1.0
+
+# Core-excited states shift
+E_2p = 712.0
