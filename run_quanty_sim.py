@@ -67,6 +67,7 @@ def run_quanty_sim(folder_path, lua_file="greenMLCT_Co3d6_D4h_RCN_conf_job.lua",
         # Write into Lua file
         with open(destination, 'w') as f:
             f.write(lua_content)
+        print('Hello')
     
     # Verify lua file exists in folder_path
     lua_path = folder_path / lua_file
