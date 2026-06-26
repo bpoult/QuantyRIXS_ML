@@ -5,7 +5,7 @@ import numpy as np
 from pathlib import Path
 
 
-def extract_from_spec(folder_path, spec_file, timeout=None):
+def extract_from_spec(folder_path='/Users/pierolujanpedreschi/SLAC-Project/Co/CoTerpy/6.25.2026_Examples/TM_test1', spec_file='/Users/pierolujanpedreschi/SLAC-Project/Co/CoTerpy/6.25.2026_Examples/TM_test1/XASisoL3_GS_Oh_1.txt', timeout=None):
     """
     Take the Quanty XAS output data then extract the Energy and Intensity Column
 
@@ -41,6 +41,12 @@ def extract_from_spec(folder_path, spec_file, timeout=None):
     if not spec_path.exists():
         raise FileNotFoundError(f"File not found: {spec_path}")
     
-    data = np.loadtxt(spec_path)
+    print(spec_path)
+    data = np.loadtxt(spec_path, skiprows=5)
 
-    
+    col1 = data[:, 0]
+
+    print(col1)
+    print('hello')
+    return col1
+
