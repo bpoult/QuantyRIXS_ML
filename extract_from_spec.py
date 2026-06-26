@@ -41,7 +41,7 @@ def extract_from_spec(folder_path, spec_file, timeout=None):
     if not spec_path.exists():
         raise FileNotFoundError(f"File not found: {spec_path}")
     
-    print(spec_path)
+    # assign data var with numerical data from text file, skip first 5 rows of header lines
     data = np.loadtxt(spec_path, skiprows=5)
 
     energy = data[:, 0]
