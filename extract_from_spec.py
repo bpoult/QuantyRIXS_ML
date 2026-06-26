@@ -5,7 +5,7 @@ import numpy as np
 from pathlib import Path
 
 
-def extract_from_spec(folder_path='/Users/pierolujanpedreschi/SLAC-Project/Co/CoTerpy/6.25.2026_Examples/TM_test1', spec_file='/Users/pierolujanpedreschi/SLAC-Project/Co/CoTerpy/6.25.2026_Examples/TM_test1/XASisoL3_GS_Oh_1.txt', timeout=None):
+def extract_from_spec(folder_path, spec_file, timeout=None):
     """
     Take the Quanty XAS output data then extract the Energy and Intensity Column
 
@@ -20,13 +20,12 @@ def extract_from_spec(folder_path='/Users/pierolujanpedreschi/SLAC-Project/Co/Co
     
     Returns:
     --------
-    result : subprocess.CompletedProcess
-        Contains return code, stdout, stderr
+    result : {'Energy': energy, 'Intensity': intensity}
+        Dictionary that contains 2 np.arrays as the values
     
     Raises:
     -------
     FileNotFoundError : if folder or output file doesn't exist
-    subprocess.TimeoutExpired : if simulation exceeds timeout
     """
 
     #Convert to Path object for easier manipulation
@@ -36,6 +35,7 @@ def extract_from_spec(folder_path='/Users/pierolujanpedreschi/SLAC-Project/Co/Co
     if not folder_path.exists():
         raise FileNotFoundError(f"Folder not found: {folder_path}")
     
+    # Verify spec_file exists in folder
     spec_path = folder_path / spec_file
 
     if not spec_path.exists():
@@ -44,9 +44,9 @@ def extract_from_spec(folder_path='/Users/pierolujanpedreschi/SLAC-Project/Co/Co
     print(spec_path)
     data = np.loadtxt(spec_path, skiprows=5)
 
-    col1 = data[:, 0]
+    energy = data[:, 0]
+    intensity = data[:, 2]
 
-    print(col1)
-    print('hello')
-    return col1
+
+    return {'Energy': energy, 'Intensity': intensity}
 
