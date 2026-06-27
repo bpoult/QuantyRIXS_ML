@@ -84,16 +84,26 @@ def run_quanty_sim(folder_path, lua_file="greenMLCT_Co3d6_D4h_RCN_conf_job.lua",
         command = f"quanty {lua_file}"
         
         
-        if lua_file != 'groundstate.lua':
+        # if lua_file != 'groundstate.lua':
+        #     # Run simulation
+        #     result = subprocess.run(
+        #         command,
+        #         shell=True,
+        #         capture_output=False,
+        #         text=True,
+        #         timeout=timeout
+        #     )
+        # else:
+        #     result = subprocess.run(
+        #         command,
+        #         shell=True,
+        #         capture_output=True,
+        #         text=True,
+        #         timeout=timeout
+        #     )
+
+        if lua_file:
             # Run simulation
-            result = subprocess.run(
-                command,
-                shell=True,
-                capture_output=False,
-                text=True,
-                timeout=timeout
-            )
-        else:
             result = subprocess.run(
                 command,
                 shell=True,
