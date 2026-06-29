@@ -398,40 +398,40 @@ if energy_end > L3_L2_split then
   XASiso_L2.Print({{"file",filename1b}})
   print('Saved file ' .. filename1b)
 
-  -- RIXS spectra
-  RIXS_L3 = CreateResonantSpectra(H_f, H_i, {Tx_2p_3d, Ty_2p_3d, Tz_2p_3d}, {Tx_3d_2p, Ty_3d_2p, Tz_3d_2p},
-          Psi_i, {{'Emin1', E1min_L3}, {'Emax1', E1max_L3}, {'NE1', NE1_L3}, {'Gamma1', Gamma1_L3},
-          {'Emin2', E2min}, {'Emax2', E2max}, {'NE2', NE2}, {'Gamma2', Gamma2}})
-  RIXS_L2 = CreateResonantSpectra(H_f, H_i, {Tx_2p_3d, Ty_2p_3d, Tz_2p_3d}, {Tx_3d_2p, Ty_3d_2p, Tz_3d_2p},
-          Psi_i, {{'Emin1', E1min_L2}, {'Emax1', E1max_L2}, {'NE1', NE1_L2}, {'Gamma1', Gamma1_L2},
-          {'Emin2', E2min}, {'Emax2', E2max}, {'NE2', NE2}, {'Gamma2', Gamma2}})
-  --
-  RIXSiso_L3 = 0
-  offset = 0
-  for i = 1, 3 * 3 do
-    indices = {}
-    for j = 1, NE1_L3 + 1 do
-      table.insert(indices, j + offset)
-    end
-    RIXSiso_L3 = RIXSiso_L3 - Spectra.Element(RIXS_L3, indices)
-    offset = offset + NE1_L3 + 1
-  end
-  --
-  RIXSiso_L2 = 0
-  offset = 0
-  for i = 1, 3 * 3 do
-    indices = {}
-    for j = 1, NE1_L2 + 1 do
-      table.insert(indices, j + offset)
-    end
-    RIXSiso_L2 = RIXSiso_L2 - Spectra.Element(RIXS_L2, indices)
-    offset = offset + NE1_L2 + 1
-  end
+  -- -- RIXS spectra
+  -- RIXS_L3 = CreateResonantSpectra(H_f, H_i, {Tx_2p_3d, Ty_2p_3d, Tz_2p_3d}, {Tx_3d_2p, Ty_3d_2p, Tz_3d_2p},
+          -- Psi_i, {{'Emin1', E1min_L3}, {'Emax1', E1max_L3}, {'NE1', NE1_L3}, {'Gamma1', Gamma1_L3},
+          -- {'Emin2', E2min}, {'Emax2', E2max}, {'NE2', NE2}, {'Gamma2', Gamma2}})
+  -- RIXS_L2 = CreateResonantSpectra(H_f, H_i, {Tx_2p_3d, Ty_2p_3d, Tz_2p_3d}, {Tx_3d_2p, Ty_3d_2p, Tz_3d_2p},
+          -- Psi_i, {{'Emin1', E1min_L2}, {'Emax1', E1max_L2}, {'NE1', NE1_L2}, {'Gamma1', Gamma1_L2},
+          -- {'Emin2', E2min}, {'Emax2', E2max}, {'NE2', NE2}, {'Gamma2', Gamma2}})
+  -- --
+  -- RIXSiso_L3 = 0
+  -- offset = 0
+  -- for i = 1, 3 * 3 do
+    -- indices = {}
+    -- for j = 1, NE1_L3 + 1 do
+      -- table.insert(indices, j + offset)
+    -- end
+    -- RIXSiso_L3 = RIXSiso_L3 - Spectra.Element(RIXS_L3, indices)
+    -- offset = offset + NE1_L3 + 1
+  -- end
+  -- --
+  -- RIXSiso_L2 = 0
+  -- offset = 0
+  -- for i = 1, 3 * 3 do
+    -- indices = {}
+    -- for j = 1, NE1_L2 + 1 do
+      -- table.insert(indices, j + offset)
+    -- end
+    -- RIXSiso_L2 = RIXSiso_L2 - Spectra.Element(RIXS_L2, indices)
+    -- offset = offset + NE1_L2 + 1
+  -- end
 
-  RIXSiso_L3.Print({{'file', filename2a}})
-  print('Saved file ' .. filename2a)
-  RIXSiso_L2.Print({{'file', filename2b}})
-  print('Saved file ' .. filename2b)
+  -- RIXSiso_L3.Print({{'file', filename2a}})
+  -- print('Saved file ' .. filename2a)
+  -- RIXSiso_L2.Print({{'file', filename2b}})
+  -- print('Saved file ' .. filename2b)
 
 else
   E1min_L3 = energy_start - E_2p
