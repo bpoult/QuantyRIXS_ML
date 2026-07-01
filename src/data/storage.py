@@ -2,7 +2,7 @@ import h5py
 import numpy as np
 import json
 from pathlib import Path
-from params import CrystalFieldParams
+from src.params import CrystalFieldParams
 
 def save_dataset(spectra: np.ndarray, energies: np.ndarray, params: list[CrystalFieldParams], output_path: str, metadata: dict):
     """
