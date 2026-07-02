@@ -33,10 +33,8 @@ def save_dataset(spectra: np.ndarray, energies: np.ndarray, params: list[Crystal
 
         # Create folder within h5py for parameter data
         params_grp = f.create_group("Params")
-        params_grp.create_dataset("ten_dq", data=np.array([p.ten_dq for p in params]))
-        params_grp.create_dataset("scale_dd", data=np.array([p.scale_dd for p in params]))
-        params_grp.create_dataset("scale_pd", data=np.array([p.scale_pd for p in params]))
-        params_grp.create_dataset("gamma_lorentz", data=np.array([p.gamma_lorentz for p in params]))
+        params_grp.create_dataset("ten_dq_i", data=np.array([p.ten_dq_i for p in params]))
+        params_grp.create_dataset("ten_dq_f", data=np.array([p.ten_dq_f for p in params]))
 
     json_path = output_path.with_suffix(".json")
     with open(json_path, "w") as f:
@@ -71,12 +69,10 @@ def load_dataset(input_path: str):
         spectra = f['Spectra'][:]
 
         # Load each parameter column then stack into shape (N, 4) for from_array
-        ten_dq = f['Params']['ten_dq'][:]
-        scale_dd = f['Params']['scale_dd'][:]
-        scale_pd = f['Params']['scale_pd'][:]
-        gamma_lorentz = f['Params']['gamma_lorentz'][:]
+        ten_dq_i = f['Params']['ten_dq_i'][:]
+        ten_dq_f = f['Params']['ten_dq_f'][:]
         
-        params_arr = np.stack([ten_dq, scale_dd, scale_pd, gamma_lorentz], axis=1)  # shape (N, 4)
+        params_arr = np.stack([ten_dq_i, ten_dq_f], axis=1)  # shape (N, 2 (num of parameters))
         params = [CrystalFieldParams.from_array(params_arr[i]) for i in range(len(params_arr))]
 
     # Load companion metadata JSON
