@@ -12,33 +12,6 @@ PARAMS_SETUP = {
     'rcn_file': '/Users/pierolujanpedreschi/SLAC-Project/QuantyRIXS_ML/RCNparameter.txt',
 }
 
-PARAMS_I = {
-    'NPsi_i': 50,
-    'tenDq_3d_i': np.nan,
-    'Ds_3d_i': 0.0,
-    'Dt_3d_i': 0.0,
-    'scalef2_3d3d_i': 0.68,
-    'scalef4_3d3d_i': 0.8,
-    'scale_3dSOC_i': 0.8,
-    'U_3d_3d_i': 0,
-}
-
-PARAMS_F = {
-    'NPsi_f': 50,
-    'tenDq_3d_f': np.nan,  
-    'Ds_3d_f': 0,
-    'Dt_3d_f': 0.0,
-    'scalef2_3d3d_f': 0.68,
-    'scalef4_3d3d_f': 0.8,
-    'scale_3dSOC_f': 0.8,
-    'U_3d_3d_f': 0,
-    'U_2p_3d_f': 0,
-    'scalef2_2p3d': 0.2,
-    'scaleg': 0.6,
-    'scale_2pSOC': 0.8,
-    'E_2p': 778,
-}
-
 PARAMS_RIXS = {
     'energy_start': 765,
     'energy_end': 800,
@@ -88,12 +61,13 @@ def generate_dataset(N: int, output_path: str, lua_file_path: str, ten_dq_min: f
         sim_dir.mkdir(parents=True, exist_ok=True)
 
         # Sample a random ten_dq and wrap it in a CrystalFieldParams object
-        ten_dq = rng.uniform(low=ten_dq_min, high=ten_dq_max)
-        cf_params = CrystalFieldParams(ten_dq)
+        ten_dq_i = rng.uniform(low=ten_dq_min, high=ten_dq_max)
+        ten_dq_f = ten_dq_i * (1 - rng.uniform(low=0, high=0.25))
+        cf_params = CrystalFieldParams(ten_dq_i=ten_dq_i, ten_dq_f=ten_dq_f)
 
         # Merge sampled params with fixed constants into Quanty-ready dicts
         params_i, params_f, params_setup, params_rixs = build_quanty_dicts(
-            cf_params, PARAMS_SETUP, PARAMS_I, PARAMS_F, PARAMS_RIXS
+            cf_params, PARAMS_SETUP, PARAMS_RIXS
         )
 
         # Write Quanty input files into the simulation directory
@@ -121,7 +95,7 @@ def generate_dataset(N: int, output_path: str, lua_file_path: str, ten_dq_min: f
 
         all_spectra.append(extract_result['Intensity'])
         all_params.append(cf_params)
-        print(f"[{i+1}/{N}] ten_dq={ten_dq:.3f} eV — done")
+        print(f"[{i+1}/{N}] ten_dq_i={ten_dq_i:.3f} eV ==> ten_dq_f={ten_dq_f:.3f} eV— done")
 
     # Stack intensity arrays into a 2D array of shape (N, n_energy_points)
     spectra_array = np.stack(all_spectra)
