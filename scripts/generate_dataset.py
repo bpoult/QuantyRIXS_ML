@@ -2,6 +2,7 @@ import numpy as np
 from src.params import CrystalFieldParams
 from src.data import save_dataset
 from src.spectra import run_quanty_sim, extract_from_spec, generate_inp_quanty, generate_inp_rixs, build_quanty_dicts
+from src.sampling import latin_hypercube_sampling
 from pathlib import Path
 
 PARAMS_SETUP = {
@@ -27,10 +28,13 @@ PARAMS_RIXS = {
     'pol': 0,
 }
 
+L_BOUNDS = np.array([0.5, 0.75])
+U_BOUNDS = np.array([5, 1])
+
 FNAME_QUANTY = 'GS_Oh.inp_quanty'
 FNAME_RIXS = 'GS_Oh.inp_rixs'
 
-def generate_dataset(N: int, output_path: str, lua_file_path: str, ten_dq_min: float = 0.5, ten_dq_max: float = 5.0):
+def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str):
     """
     Generate a simulated XAS dataset by running N Quanty simulations with
     randomly sampled ten_dq values, then saving all results to HDF5.
@@ -39,6 +43,8 @@ def generate_dataset(N: int, output_path: str, lua_file_path: str, ten_dq_min: f
     -----------
     N : int
         Number of simulations to run.
+    d : int
+        Dimensions for Latin Hypercube Sampling (# of parameters that will be changed)
     output_path : str
         Directory where simulation folders and final dataset will be saved.
     lua_file_path : str
@@ -49,20 +55,22 @@ def generate_dataset(N: int, output_path: str, lua_file_path: str, ten_dq_min: f
         Maximum ten_dq value to sample (eV). Default 5.0.
     """
 
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(seed=1)
 
     all_spectra = []    # collects intensity arrays, one per simulation
     all_params = []     # collects CrystalFieldParams objects, one per simulation
     energies = None     # shared energy grid — captured from first simulation
+
+    lhs_sample_matrix = latin_hypercube_sampling(N, d, L_BOUNDS, U_BOUNDS)
 
     for i in range(N):
         # Each simulation gets its own subdirectory to avoid file overwrites
         sim_dir = Path(output_path)/ "simulations" / f"sim_{i:04d}"
         sim_dir.mkdir(parents=True, exist_ok=True)
 
-        # Sample a random ten_dq and wrap it in a CrystalFieldParams object
-        ten_dq_i = rng.uniform(low=ten_dq_min, high=ten_dq_max)
-        ten_dq_f = ten_dq_i * (1 - rng.uniform(low=0, high=0.25))
+        # Sample a random parameter values with Latin Hypercube Sampling and wrap it in a CrystalFieldParams object
+        ten_dq_i = lhs_sample_matrix[i, 0]
+        ten_dq_f = ten_dq_i * lhs_sample_matrix[i, 1]
         cf_params = CrystalFieldParams(ten_dq_i=ten_dq_i, ten_dq_f=ten_dq_f)
 
         # Merge sampled params with fixed constants into Quanty-ready dicts
