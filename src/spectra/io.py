@@ -53,7 +53,7 @@ def run_quanty_sim(folder_path, lua_file="greenMLCT_Co3d6_D4h_RCN_conf_job.lua",
         
         destination = folder_path / lua_file
         shutil.copy2(source_file, destination)
-        print(f"Copied {source_file} to {destination}")
+        # print(f"Copied {source_file} to {destination}")
 
         with open(destination, 'r') as f:
             lua_content = f.read()
@@ -552,8 +552,6 @@ pol = {parameters_rixs['pol']}
     return output_file
 
 def build_quanty_dicts(params: CrystalFieldParams,params_setup: dict, params_rixs: dict=None):
-    rng = np.random.default_rng()
-
     params_i = {
         'NPsi_i': params.NPsi_i,
         'tenDq_3d_i': params.ten_dq_i,
