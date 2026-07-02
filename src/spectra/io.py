@@ -53,7 +53,6 @@ def run_quanty_sim(folder_path, lua_file="greenMLCT_Co3d6_D4h_RCN_conf_job.lua",
         
         destination = folder_path / lua_file
         shutil.copy2(source_file, destination)
-        # print(f"Copied {source_file} to {destination}")
 
         with open(destination, 'r') as f:
             lua_content = f.read()
@@ -156,6 +155,36 @@ def extract_from_spec(folder_path, spec_file, timeout=None):
 
 
     return {'Energy': energy, 'Intensity': intensity}
+
+def build_quanty_dicts(params: CrystalFieldParams,params_setup: dict, params_rixs: dict=None):
+    params_i = {
+        'NPsi_i': params.NPsi_i,
+        'tenDq_3d_i': params.ten_dq_i,
+        'Ds_3d_i': params.Ds_3d_i,
+        'Dt_3d_i': params.Dt_3d_i,
+        'scalef2_3d3d_i': params.scalef2_3d3d_i,
+        'scalef4_3d3d_i': params.scalef4_3d3d_i,
+        'scale_3dSOC_i': params.scale_3dSOC_i,
+        'U_3d_3d_i': params.U_3d_3d_i,
+    }
+
+    params_f = {
+        'NPsi_f': params.NPsi_f,
+        'tenDq_3d_f': params.ten_dq_f,  
+        'Ds_3d_f': params.Ds_3d_f,
+        'Dt_3d_f': params.Dt_3d_f,
+        'scalef2_3d3d_f': params.scalef2_3d3d_f,
+        'scalef4_3d3d_f': params.scalef4_3d3d_f,
+        'scale_3dSOC_f': params.scale_3dSOC_f,
+        'U_3d_3d_f': params.U_3d_3d_f,
+        'U_2p_3d_f': params.U_2p_3d_f,
+        'scalef2_2p3d': params.scalef2_2p3d,
+        'scaleg': params.scaleg,
+        'scale_2pSOC': params.scale_2pSOC,
+        'E_2p': params.E_2p,
+    }
+
+    return params_i, params_f, params_setup, params_rixs
 
 def generate_inp_quanty(parameters_i, parameters_f, parameters_setup, output_path, fname):
     """
@@ -550,33 +579,3 @@ pol = {parameters_rixs['pol']}
         f.write(template)
     
     return output_file
-
-def build_quanty_dicts(params: CrystalFieldParams,params_setup: dict, params_rixs: dict=None):
-    params_i = {
-        'NPsi_i': params.NPsi_i,
-        'tenDq_3d_i': params.ten_dq_i,
-        'Ds_3d_i': params.Ds_3d_i,
-        'Dt_3d_i': params.Dt_3d_i,
-        'scalef2_3d3d_i': params.scalef2_3d3d_i,
-        'scalef4_3d3d_i': params.scalef4_3d3d_i,
-        'scale_3dSOC_i': params.scale_3dSOC_i,
-        'U_3d_3d_i': params.U_3d_3d_i,
-    }
-
-    params_f = {
-        'NPsi_f': params.NPsi_f,
-        'tenDq_3d_f': params.ten_dq_f,  
-        'Ds_3d_f': params.Ds_3d_f,
-        'Dt_3d_f': params.Dt_3d_f,
-        'scalef2_3d3d_f': params.scalef2_3d3d_f,
-        'scalef4_3d3d_f': params.scalef4_3d3d_f,
-        'scale_3dSOC_f': params.scale_3dSOC_f,
-        'U_3d_3d_f': params.U_3d_3d_f,
-        'U_2p_3d_f': params.U_2p_3d_f,
-        'scalef2_2p3d': params.scalef2_2p3d,
-        'scaleg': params.scaleg,
-        'scale_2pSOC': params.scale_2pSOC,
-        'E_2p': params.E_2p,
-    }
-
-    return params_i, params_f, params_setup, params_rixs

@@ -28,13 +28,10 @@ PARAMS_RIXS = {
     'pol': 0,
 }
 
-L_BOUNDS = np.array([0.5, 0.75])
-U_BOUNDS = np.array([5, 1])
-
 FNAME_QUANTY = 'GS_Oh.inp_quanty'
 FNAME_RIXS = 'GS_Oh.inp_rixs'
 
-def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str):
+def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bounds: np.ndarray, u_bounds: np.ndarray):
     """
     Generate a simulated XAS dataset by running N Quanty simulations with
     randomly sampled ten_dq values, then saving all results to HDF5.
@@ -55,13 +52,13 @@ def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str):
         Maximum ten_dq value to sample (eV). Default 5.0.
     """
 
-    rng = np.random.default_rng(seed=1)
-
     all_spectra = []    # collects intensity arrays, one per simulation
     all_params = []     # collects CrystalFieldParams objects, one per simulation
     energies = None     # shared energy grid — captured from first simulation
 
-    lhs_sample_matrix = latin_hypercube_sampling(N, d, L_BOUNDS, U_BOUNDS)
+    # Creates matrix of shape (N, d) with LHS-sampled parameter values — 
+    # guarantees even coverage across [l_bounds, u_bounds] with one sample per stratum
+    lhs_sample_matrix = latin_hypercube_sampling(N, d, l_bounds, u_bounds)
 
     for i in range(N):
         # Each simulation gets its own subdirectory to avoid file overwrites
@@ -103,7 +100,7 @@ def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str):
 
         all_spectra.append(extract_result['Intensity'])
         all_params.append(cf_params)
-        print(f"[{i+1}/{N}] ten_dq_i={ten_dq_i:.3f} eV ==> ten_dq_f={ten_dq_f:.3f} eV— done")
+        print(f"[{i+1}/{N}] ten_dq_i = {ten_dq_i:.3f} eV ==> ten_dq_f = {ten_dq_f:.3f} eV  —  done")
 
     # Stack intensity arrays into a 2D array of shape (N, n_energy_points)
     spectra_array = np.stack(all_spectra)
