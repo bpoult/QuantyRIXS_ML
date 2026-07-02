@@ -84,7 +84,7 @@ def generate_dataset(N: int, output_path: str, lua_file_path: str, ten_dq_min: f
 
     for i in range(N):
         # Each simulation gets its own subdirectory to avoid file overwrites
-        sim_dir = Path(output_path) / f"sim_{i:04d}"
+        sim_dir = Path(output_path)/ "simulations" / f"sim_{i:04d}"
         sim_dir.mkdir(parents=True, exist_ok=True)
 
         # Sample a random ten_dq and wrap it in a CrystalFieldParams object
@@ -111,6 +111,9 @@ def generate_dataset(N: int, output_path: str, lua_file_path: str, ten_dq_min: f
         # Extract energy grid and intensity array from the first output file
         spec_file = saved_files[0]
         extract_result = extract_from_spec(folder_path=sim_dir, spec_file=spec_file)
+
+        # Delete .txt spectrum file to save space
+        (sim_dir / spec_file).unlink()
 
         # Capture energy grid once — it is identical across all simulations
         if energies is None:

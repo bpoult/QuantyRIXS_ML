@@ -105,6 +105,9 @@ def run_quanty_sim(folder_path, lua_file="greenMLCT_Co3d6_D4h_RCN_conf_job.lua",
         return result
         
     finally:
+        # Delete Lua file from directory for space preservation
+        lua_path.unlink()
+
         # Always return to original directory
         os.chdir(original_dir)
 
