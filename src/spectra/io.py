@@ -84,7 +84,7 @@ def run_quanty_sim(folder_path, lua_file="greenMLCT_Co3d6_D4h_RCN_conf_job.lua",
         os.chdir(folder_path)
         
         # Build command - REPLACE THIS with your actual command
-        command = f"quanty {lua_file}"
+        command = f"Quanty {lua_file}"
 
         if lua_file:
             # Run simulation

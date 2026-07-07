@@ -57,6 +57,7 @@ def save_simulation(spectrum: np.ndarray, energies: np.ndarray, params: CrystalF
                 f['Spectra'][-1] = spectrum
                 f['Params']['ten_dq_i'][-1] = params.ten_dq_i
                 f['Params']['ten_dq_f'][-1] = params.ten_dq_f
+                f['Last Index'][()] = index
             except Exception as e:
                 # Undo the resize by shrinking back
                 f['Spectra'].resize(f['Spectra'].shape[0] - 1, axis=0)

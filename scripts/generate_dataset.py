@@ -10,13 +10,14 @@ from src.utils import setup_logger
 from pathlib import Path
 
 logger = setup_logger()
+REPO_ROOT = Path(__file__).parent.parent
 
 PARAMS_SETUP = {
     'atom': 'Co',
     'charge': '6+',
     'edge': 'L',
     'initial_state': 1,
-    'rcn_file': '/Users/pierolujanpedreschi/SLAC-Project/QuantyRIXS_ML/RCNparameter.txt',
+    'rcn_file': str(REPO_ROOT / 'RCNparameter.txt'),
 }
 
 PARAMS_RIXS = {
@@ -68,8 +69,15 @@ def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bou
     # check to see if dataset.h5 exists and check last index saved to resume simulations
     if dataset_path.exists():
         with h5py.File(dataset_path, 'r') as f:
-            start_index = f['Last Index'][()]
-        logger.info(f"Resuming from simulation {start_index}")
+            # Read the last saved simulation index and start from the next one
+            # e.g. if last index was 9 (10 simulations done), start_index = 10
+            # range(10, 10) is empty — no duplicates if N hasn't changed
+            # range(10, 20) resumes from sim 10 if N was increased to 20
+            start_index = f['Last Index'][()] + 1
+            if start_index == N:
+                logger.info(f"Simulations are up to date. Last Index = {start_index}")
+            else:
+                logger.info(f"Resuming from simulation {start_index}")
 
     # A fixed array of energy values that every spectrum gets resampled onto
     num_elements = int(round((PARAMS_RIXS['energy_end'] - PARAMS_RIXS['energy_start']) / PARAMS_RIXS['energy_step'])) + 1
