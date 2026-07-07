@@ -1,9 +1,15 @@
 import numpy as np
+import logging
+import subprocess
+import h5py
 from src.params import CrystalFieldParams
-from src.data import save_dataset
-from src.spectra import run_quanty_sim, extract_from_spec, generate_inp_quanty, generate_inp_rixs, build_quanty_dicts
+from src.data import save_simulation
+from src.spectra import run_quanty_sim, extract_from_spec, generate_inp_quanty, generate_inp_rixs, build_quanty_dicts, standardize_spectrum
 from src.sampling import latin_hypercube_sampling
+from src.utils import setup_logger
 from pathlib import Path
+
+logger = setup_logger()
 
 PARAMS_SETUP = {
     'atom': 'Co',
@@ -52,15 +58,24 @@ def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bou
         Maximum ten_dq value to sample (eV). Default 5.0.
     """
 
-    all_spectra = []    # collects intensity arrays, one per simulation
-    all_params = []     # collects CrystalFieldParams objects, one per simulation
-    energies = None     # shared energy grid — captured from first simulation
-
     # Creates matrix of shape (N, d) with LHS-sampled parameter values — 
     # guarantees even coverage across [l_bounds, u_bounds] with one sample per stratum
     lhs_sample_matrix = latin_hypercube_sampling(N, d, l_bounds, u_bounds)
 
-    for i in range(N):
+    dataset_path = Path(output_path) / "dataset.h5"
+    start_index = 0
+
+    # check to see if dataset.h5 exists and check last index saved to resume simulations
+    if dataset_path.exists():
+        with h5py.File(dataset_path, 'r') as f:
+            start_index = f['Last Index'][()]
+        logger.info(f"Resuming from simulation {start_index}")
+
+    # A fixed array of energy values that every spectrum gets resampled onto
+    num_elements = int(round((PARAMS_RIXS['energy_end'] - PARAMS_RIXS['energy_start']) / PARAMS_RIXS['energy_step'])) + 1
+    reference_grid = np.linspace(PARAMS_RIXS['energy_start'], PARAMS_RIXS['energy_end'], num=num_elements)
+
+    for i in range(start_index, N):
         # Each simulation gets its own subdirectory to avoid file overwrites
         sim_dir = Path(output_path)/ "simulations" / f"sim_{i:04d}"
         sim_dir.mkdir(parents=True, exist_ok=True)
@@ -80,30 +95,38 @@ def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bou
         generate_inp_rixs(params_rixs, sim_dir, FNAME_RIXS)
 
         # Run Quanty and capture stdout to find output spectrum filenames
-        sim_result = run_quanty_sim(sim_dir, 'TM_Ledge_spec_job.lua', lua_file_path)
+        # sim_result = run_quanty_sim(sim_dir, 'TM_Ledge_spec_job.lua', lua_file_path, timeout=60)
+
+        try:
+            sim_result = run_quanty_sim(sim_dir, 'TM_Ledge_spec_job.lua', lua_file_path, timeout=60)
+        except subprocess.TimeoutExpired:
+            logger.warning(f"[{i+1}/{N}] Simulation timed out — skipping index {i}")
+            continue
+        except Exception as e:
+            logger.error(f"[{i+1}/{N}] Simulation failed: {e} — skipping index {i}")
+            continue
 
         # Parse stdout to find saved .txt spectrum files
         # Ex) 'Saved File: XASisoL3_GS_Oh_1.txt' → 'XASisoL3_GS_Oh_1.txt'
         lines = sim_result.stdout.split('\n')
         saved_files = list(set([line.split()[-1] for line in lines if line.endswith('.txt')]))
 
+         # Check to see if the saved files exist 
+        if not saved_files:
+            logger.warning(f"[{i+1}/{N}] No output files found — skipping index {i}")
+            continue
+
         # Extract energy grid and intensity array from the first output file
         spec_file = saved_files[0]
-        extract_result = extract_from_spec(folder_path=sim_dir, spec_file=spec_file)
+        extracted_result = extract_from_spec(folder_path=sim_dir, spec_file=spec_file)
 
         # Delete .txt spectrum file to save space
         (sim_dir / spec_file).unlink()
 
-        # Capture energy grid once — it is identical across all simulations
-        if energies is None:
-            energies = extract_result['Energy']
+        # Store all data into variables to save
+        standardized = standardize_spectrum(extracted_result['Energy'], extracted_result['Intensity'], reference_grid)
 
-        all_spectra.append(extract_result['Intensity'])
-        all_params.append(cf_params)
-        print(f"[{i+1}/{N}] ten_dq_i = {ten_dq_i:.3f} eV ==> ten_dq_f = {ten_dq_f:.3f} eV  —  done")
+        # Write or append to .h5 file with new data
+        save_simulation(standardized, reference_grid, cf_params, dataset_path, PARAMS_SETUP, i)
 
-    # Stack intensity arrays into a 2D array of shape (N, n_energy_points)
-    spectra_array = np.stack(all_spectra)
-
-    # Save the full dataset to HDF5 + companion metadata JSON
-    save_dataset(spectra_array, energies, all_params, Path(output_path) / "dataset.h5", PARAMS_SETUP)
+        logger.info(f"[{i+1}/{N}] ten_dq_i = {ten_dq_i:.3f} eV ==> ten_dq_f = {ten_dq_f:.3f} eV  —  done")

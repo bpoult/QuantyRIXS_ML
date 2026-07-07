@@ -27,7 +27,7 @@ def latin_hypercube_sampling(N: int, d: int, l_bounds: list, u_bounds: list) -> 
     """
 
     # Initialize the LHS sampler for d dimensions with a fixed seed for reproducibility
-    sampler = qmc.LatinHypercube(d=d, seed=1)
+    sampler = qmc.LatinHypercube(d=d, seed=42)
 
     # Generate N samples in the unit hypercube [0, 1]^d — one sample per stratum per dimension
     sample = sampler.random(n=N)
