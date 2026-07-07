@@ -12,3 +12,6 @@ __pycache__/
 
 C:/
 .DS_Store
+
+# Logs
+*.log
