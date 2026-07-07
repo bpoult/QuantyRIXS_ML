@@ -128,6 +128,8 @@ def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bou
         standardized = standardize_spectrum(extracted_result['Energy'], extracted_result['Intensity'], reference_grid)
 
         # Write or append to .h5 file with new data
+        logger.info(f"Saving simulation {i} to {dataset_path}")
         save_simulation(standardized, reference_grid, cf_params, dataset_path, PARAMS_SETUP, i)
+        logger.info(f"Saved simulation {i} successfully")
 
         logger.info(f"[{i+1}/{N}] ten_dq_i = {ten_dq_i:.3f} eV ==> ten_dq_f = {ten_dq_f:.3f} eV  —  done")
