@@ -10,13 +10,14 @@ from src.utils import setup_logger
 from pathlib import Path
 
 logger = setup_logger()
+REPO_ROOT = Path(__file__).parent.parent
 
 PARAMS_SETUP = {
     'atom': 'Co',
     'charge': '6+',
     'edge': 'L',
     'initial_state': 1,
-    'rcn_file': '/Users/pierolujanpedreschi/SLAC-Project/QuantyRIXS_ML/RCNparameter.txt',
+    'rcn_file': str(REPO_ROOT / 'RCNparameter.txt'),
 }
 
 PARAMS_RIXS = {
