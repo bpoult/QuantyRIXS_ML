@@ -69,8 +69,15 @@ def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bou
     # check to see if dataset.h5 exists and check last index saved to resume simulations
     if dataset_path.exists():
         with h5py.File(dataset_path, 'r') as f:
-            start_index = f['Last Index'][()]
-        logger.info(f"Resuming from simulation {start_index}")
+            # Read the last saved simulation index and start from the next one
+            # e.g. if last index was 9 (10 simulations done), start_index = 10
+            # range(10, 10) is empty — no duplicates if N hasn't changed
+            # range(10, 20) resumes from sim 10 if N was increased to 20
+            start_index = f['Last Index'][()] + 1
+            if start_index == N:
+                logger.info(f"Simulations are up to date. Last Index = {start_index}")
+            else:
+                logger.info(f"Resuming from simulation {start_index}")
 
     # A fixed array of energy values that every spectrum gets resampled onto
     num_elements = int(round((PARAMS_RIXS['energy_end'] - PARAMS_RIXS['energy_start']) / PARAMS_RIXS['energy_step'])) + 1
@@ -128,8 +135,6 @@ def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bou
         standardized = standardize_spectrum(extracted_result['Energy'], extracted_result['Intensity'], reference_grid)
 
         # Write or append to .h5 file with new data
-        logger.info(f"Saving simulation {i} to {dataset_path}")
         save_simulation(standardized, reference_grid, cf_params, dataset_path, PARAMS_SETUP, i)
-        logger.info(f"Saved simulation {i} successfully")
 
         logger.info(f"[{i+1}/{N}] ten_dq_i = {ten_dq_i:.3f} eV ==> ten_dq_f = {ten_dq_f:.3f} eV  —  done")
