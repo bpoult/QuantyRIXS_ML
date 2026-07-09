@@ -116,4 +116,8 @@ def load_dataset(input_path: str):
     with open(json_path, "r") as f:
         metadata = json.load(f)
 
+    print(f'params: {params}')
+    print(f'params types {type(params)}')
+    print(f'params types {params.to_array()}')
+
     return spectra, energies, params, metadata, index

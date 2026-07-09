@@ -1,1 +1,1 @@
-from .generate_dataset import generate_dataset
+from .generate_dataset import generate_dataset, train_model
