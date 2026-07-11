@@ -7,7 +7,7 @@ from parse_rcn import parse_rcn_parameters
 from src.params import CrystalFieldParams
 
 
-def run_quanty_sim(folder_path, lua_file="greenMLCT_Co3d6_D4h_RCN_conf_job.lua", lua_file_path=None, timeout=None):
+def run_quanty_sim(folder_path, lua_file="TM_Ledge_spec_job.lua", lua_file_path=None, timeout=None):
     """
     Run X-ray absorption spectrum simulation from specified folder.
     

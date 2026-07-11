@@ -1,14 +1,9 @@
-import numpy as np
+from pathlib import Path
+from src.models.train import train_model
 
-from joblib import dump, load
-from src.data import load_dataset
-from sklearn.model_selection import train_test_split
+REPO_ROOT = Path(__file__).parent.parent
+dataset_path = REPO_ROOT / 'data' / 'medium_dataset' / 'dataset.h5'
+model_path = REPO_ROOT / 'models' / 'gradient_boost.joblib'
 
-def train_model(dataset_path):
-    spectra, _, params, _, _ = load_dataset(dataset_path)
-    
-    x = spectra
-    y = np.array([p.to_array() for p in params])
-
-
-
+model, x_test, y_test = train_model(str(dataset_path), str(model_path))
+print("Training complete")
