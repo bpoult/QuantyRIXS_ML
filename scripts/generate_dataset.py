@@ -103,8 +103,6 @@ def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bou
         generate_inp_rixs(params_rixs, sim_dir, FNAME_RIXS)
 
         # Run Quanty and capture stdout to find output spectrum filenames
-        # sim_result = run_quanty_sim(sim_dir, 'TM_Ledge_spec_job.lua', lua_file_path, timeout=60)
-
         try:
             sim_result = run_quanty_sim(sim_dir, 'TM_Ledge_spec_job.lua', lua_file_path, timeout=60)
         except subprocess.TimeoutExpired:
