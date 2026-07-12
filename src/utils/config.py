@@ -5,7 +5,7 @@ def load_config(config_file: str ):
     REPO_ROOT = Path(__file__).parent.parent.parent  # QuantyRIXS_ML/src/utils → QuantyRIXS_ML → repo root
     config_path = REPO_ROOT / 'configs' / config_file
 
-    with open(Path(config_path) / config_file, 'r') as f:
+    with open(Path(config_path), 'r') as f:
         config = json.load(f)
 
     # Set the 'RCN_file" value to QuantyRIXS_ML / config_file because QuantyRIXS_ML is 2 levels above the scripts
