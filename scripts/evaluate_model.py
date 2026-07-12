@@ -1,6 +1,6 @@
 import numpy as np
 import argparse
-from src.models import train_model, evaluate_model
+from src.models.model import train_model, evaluate_model
 from src.utils import setup_logger, load_config
 from pathlib import Path
 

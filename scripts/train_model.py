@@ -1,6 +1,6 @@
 import argparse
 from pathlib import Path
-from src.models import train_model
+from src.models.model import train_model
 
 if __name__ == "__main__":
     REPO_ROOT = Path(__file__).parent.parent
