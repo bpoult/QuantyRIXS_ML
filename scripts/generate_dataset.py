@@ -10,16 +10,11 @@ from src.utils import setup_logger, load_config
 from pathlib import Path
 
 logger = setup_logger()
-config = load_config('co_terpy_params.json')
 REPO_ROOT = Path(__file__).parent.parent
-
-PARAMS_SETUP = config['PARAMS_SETUP']
-PARAMS_RIXS = config['PARAMS_RIXS']
-
 FNAME_QUANTY = 'GS_Oh.inp_quanty'
 FNAME_RIXS = 'GS_Oh.inp_rixs'
 
-def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bounds: np.ndarray, u_bounds: np.ndarray):
+def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bounds: np.ndarray, u_bounds: np.ndarray, PARAMS_SETUP: dict, PARAMS_RIXS: dict):
     """
     Generate a simulated XAS dataset by running N Quanty simulations with
     randomly sampled ten_dq values, then saving all results to HDF5.
@@ -126,7 +121,10 @@ if __name__ == "__main__":
     parser.add_argument('--lua_file_path', type=str, default=str(REPO_ROOT))
     parser.add_argument('--l_bounds', type=float, nargs='+', default=[0.5, 0.75])
     parser.add_argument('--u_bounds', type=float, nargs='+', default=[5.0, 1.0])
+    parser.add_argument('--config', type=str, default='co_terpy_params.json')
     args = parser.parse_args()
 
-    generate_dataset(args.N, args.d, args.output_path, args.lua_file_path, args.l_bounds, args.u_bounds)
-
+    config = load_config(args.config)
+    PARAMS_SETUP = config['PARAMS_SETUP']
+    PARAMS_RIXS = config['PARAMS_RIXS']
+    generate_dataset(args.N, args.d, args.output_path, args.lua_file_path, args.l_bounds, args.u_bounds, PARAMS_SETUP, PARAMS_RIXS)

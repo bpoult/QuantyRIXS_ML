@@ -73,7 +73,7 @@ def save_simulation(spectrum: np.ndarray, energies: np.ndarray, params: CrystalF
                 json.dump(metadata, json_file, indent=4)
 
 
-def load_dataset(input_path: str):
+def load_dataset(dataset_path: str):
     """
     Load a dataset of Quanty simulations from HDF5 format with metadata.
 
@@ -96,10 +96,10 @@ def load_dataset(input_path: str):
         Last simulation index completed by loop
     """
 
-    input_path = Path(input_path)
+    dataset_path = Path(dataset_path)
 
     # Read arrays from HDF5 and reconstruct CrystalFieldParams objects
-    with h5py.File(input_path, "r") as f:
+    with h5py.File(dataset_path, "r") as f:
         index = f['Last Index']
         energies = f['Energies'][:]
         spectra = f['Spectra'][:]
@@ -112,7 +112,7 @@ def load_dataset(input_path: str):
         params = [CrystalFieldParams.from_array(params_arr[i]) for i in range(len(params_arr))]
 
     # Load companion metadata JSON
-    json_path = input_path.with_suffix(".json")
+    json_path = dataset_path.with_suffix(".json")
     with open(json_path, "r") as f:
         metadata = json.load(f)
 

@@ -26,7 +26,7 @@ if __name__ == "__main__":
     reference_grid = np.linspace(PARAMS_RIXS['energy_start'], PARAMS_RIXS['energy_end'], num=num_elements)
 
     model, x_test, y_test = train_model(args.dataset_path, args.model_path)
-    rmse, cosine_sim, pred_specs = evaluate_model(model, x_test, y_test, reference_grid, args.output_path, PARAMS_SETUP, PARAMS_RIXS, args.lua_file, args.lua_file_path)
+    rmse, cosine_sim = evaluate_model(model, x_test, y_test, reference_grid, args.output_path, PARAMS_SETUP, PARAMS_RIXS, args.lua_file, args.lua_file_path)
 
     print(f"RMSE: {rmse:.4f}")
     print(f"Cosine similarity: {cosine_sim:.4f}")
