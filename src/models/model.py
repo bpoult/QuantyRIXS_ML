@@ -188,6 +188,6 @@ def evaluate_model(model: MultiOutputRegressor,
         cos_sum += np.dot(true_spec, pred_spec) / ((np.linalg.norm(true_spec) * np.linalg.norm(pred_spec)))
     cosine_similarity = cos_sum / len(x_test_valid)
 
-    return rmse, cosine_similarity, pred_specs[0]
+    return rmse, cosine_similarity, pred_specs
 
     
