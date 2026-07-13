@@ -1,7 +1,7 @@
 {
   "PARAMS_SETUP": {
     "atom": "Co",
-    "charge": "6+",
+    "charge": "3+",
     "edge": "L",
     "initial_state": 1,
     "rcn_file": "RCNparameter.txt"

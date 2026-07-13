@@ -36,6 +36,7 @@ def train_model(dataset_path: str, model_path: str = 'models/gradient_boost.jobl
         True parameter values for the test spectra.
     """
 
+    print('begin training')
     spectra, _, params, _, _ = load_dataset(dataset_path)
     
     x = spectra
@@ -62,6 +63,9 @@ def train_model(dataset_path: str, model_path: str = 'models/gradient_boost.jobl
     model_path = Path(model_path)
     model_path.parent.mkdir(parents=True, exist_ok=True)
     dump(model, model_path)
+    print(x_test)
+    print('end training')
+    
 
     return model, x_test, y_test
 
@@ -106,18 +110,27 @@ def evaluate_model(model: MultiOutputRegressor,
     """
 
     y_pred = model.predict(x_test)
+    param_errors = np.abs(y_pred - y_test)
+    logger.info(f"MAE ten_dq_i: {param_errors[:, 0].mean():.4f} eV")
+    logger.info(f"MAE ten_dq_f: {param_errors[:, 1].mean():.4f} eV")
+    logger.info(f"Max error ten_dq_i: {param_errors[:, 0].max():.4f} eV")
+    logger.info(f"Max error ten_dq_f: {param_errors[:, 1].max():.4f} eV")
+    
     pred_specs = []
     successful_indices = []
 
     # Loop will handle generating the inp files, simulating a simulation, extracting the spectrum, and standardizing it 
     # to fit the reference_grid and normalized for intensity. Each standardized spectrum will be appended to pred_specs
     for i, p in enumerate(y_pred):
+        print(f'simulating with index {i}')
         # Each simulation gets its own subdirectory to avoid file overwrites
         sim_dir = Path(output_path)/ "simulations_with_pred_params" / f"sim_{i:04d}"
         sim_dir.mkdir(parents=True, exist_ok=True)
 
         ten_dq_i = p[0]
         ten_dq_f = p[1]
+        print(f'predicted 10dq i: {ten_dq_i}')
+        print(f'predicted 10dq f: {ten_dq_f}')
         cf_params = CrystalFieldParams(ten_dq_i, ten_dq_f)
 
         # Merge sampled params with fixed constants into Quanty-ready dicts
@@ -160,6 +173,7 @@ def evaluate_model(model: MultiOutputRegressor,
         standardized = standardize_spectrum(extracted_result['Energy'], extracted_result['Intensity'], reference_grid)
         pred_specs.append(standardized)
         successful_indices.append(i)
+        print('appended')
 
     pred_specs = np.stack(pred_specs)
     # Match x_test spectras to successful predicted spectrums to avoid issue in evaluation calculations
@@ -174,6 +188,6 @@ def evaluate_model(model: MultiOutputRegressor,
         cos_sum += np.dot(true_spec, pred_spec) / ((np.linalg.norm(true_spec) * np.linalg.norm(pred_spec)))
     cosine_similarity = cos_sum / len(x_test_valid)
 
-    return rmse, cosine_similarity
+    return rmse, cosine_similarity, pred_specs[0]
 
     

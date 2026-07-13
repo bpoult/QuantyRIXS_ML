@@ -80,7 +80,7 @@ def load_dataset(input_path: str):
     Parameters:
     -----------
     input_path : str
-        Path to save the .h5 file.
+        Path to open the .h5 file.
 
     Returns:
     --------
