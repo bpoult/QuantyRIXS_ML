@@ -15,3 +15,10 @@ C:/
 
 # Logs
 *.log
+
+# Dataset files
+data/
+models/
+*.h5
+*.joblib
+*.log

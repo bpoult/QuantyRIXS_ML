@@ -1,44 +1,20 @@
 import numpy as np
-import logging
 import subprocess
 import h5py
+import argparse
 from src.params import CrystalFieldParams
 from src.data import save_simulation
 from src.spectra import run_quanty_sim, extract_from_spec, generate_inp_quanty, generate_inp_rixs, build_quanty_dicts, standardize_spectrum
 from src.sampling import latin_hypercube_sampling
-from src.utils import setup_logger
+from src.utils import setup_logger, load_config
 from pathlib import Path
 
 logger = setup_logger()
 REPO_ROOT = Path(__file__).parent.parent
-
-PARAMS_SETUP = {
-    'atom': 'Co',
-    'charge': '6+',
-    'edge': 'L',
-    'initial_state': 1,
-    'rcn_file': str(REPO_ROOT / 'RCNparameter.txt'),
-}
-
-PARAMS_RIXS = {
-    'energy_start': 765,
-    'energy_end': 800,
-    'energy_step': 0.1,
-    'loss_start': -6,
-    'loss_end': 15,
-    'loss_step': 0.05,
-    'FWHM_lorentz1': 1.0,
-    'FWHM_lorentz1b': 0.7,
-    'FWHM_lorentz2': 0.8,
-    'Eshift': 0.0,
-    'L3_L2_split': 9999,
-    'pol': 0,
-}
-
 FNAME_QUANTY = 'GS_Oh.inp_quanty'
 FNAME_RIXS = 'GS_Oh.inp_rixs'
 
-def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bounds: np.ndarray, u_bounds: np.ndarray):
+def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bounds: np.ndarray, u_bounds: np.ndarray, PARAMS_SETUP: dict, PARAMS_RIXS: dict):
     """
     Generate a simulated XAS dataset by running N Quanty simulations with
     randomly sampled ten_dq values, then saving all results to HDF5.
@@ -53,10 +29,10 @@ def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bou
         Directory where simulation folders and final dataset will be saved.
     lua_file_path : str
         Path to the directory containing the Quanty lua script.
-    ten_dq_min : float
-        Minimum ten_dq value to sample (eV). Default 0.5.
-    ten_dq_max : float
-        Maximum ten_dq value to sample (eV). Default 5.0.
+    l_bounds : list of float
+        Lower bounds for each sampled parameter, length d.
+    u_bounds : list of float
+        Upper bounds for each sampled parameter, length d.
     """
 
     # Creates matrix of shape (N, d) with LHS-sampled parameter values — 
@@ -103,8 +79,6 @@ def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bou
         generate_inp_rixs(params_rixs, sim_dir, FNAME_RIXS)
 
         # Run Quanty and capture stdout to find output spectrum filenames
-        # sim_result = run_quanty_sim(sim_dir, 'TM_Ledge_spec_job.lua', lua_file_path, timeout=60)
-
         try:
             sim_result = run_quanty_sim(sim_dir, 'TM_Ledge_spec_job.lua', lua_file_path, timeout=60)
         except subprocess.TimeoutExpired:
@@ -138,3 +112,19 @@ def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bou
         save_simulation(standardized, reference_grid, cf_params, dataset_path, PARAMS_SETUP, i)
 
         logger.info(f"[{i+1}/{N}] ten_dq_i = {ten_dq_i:.3f} eV ==> ten_dq_f = {ten_dq_f:.3f} eV  —  done")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Generate XAS simulation dataset")
+    parser.add_argument('--N', type=int, default=2000)
+    parser.add_argument('--d', type=int, default=2)
+    parser.add_argument('--output_path', type=str, default=str(REPO_ROOT / 'data' / 'medium_dataset'))
+    parser.add_argument('--lua_file_path', type=str, default=str(REPO_ROOT))
+    parser.add_argument('--l_bounds', type=float, nargs='+', default=[0.5, 0.75])
+    parser.add_argument('--u_bounds', type=float, nargs='+', default=[5.0, 1.0])
+    parser.add_argument('--config', type=str, default='co_terpy_params.json')
+    args = parser.parse_args()
+
+    config = load_config(args.config)
+    PARAMS_SETUP = config['PARAMS_SETUP']
+    PARAMS_RIXS = config['PARAMS_RIXS']
+    generate_dataset(args.N, args.d, args.output_path, args.lua_file_path, args.l_bounds, args.u_bounds, PARAMS_SETUP, PARAMS_RIXS)

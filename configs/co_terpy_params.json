@@ -1,0 +1,23 @@
+{
+  "PARAMS_SETUP": {
+    "atom": "Co",
+    "charge": "3+",
+    "edge": "L",
+    "initial_state": 1,
+    "rcn_file": "RCNparameter.txt"
+  },
+  "PARAMS_RIXS": {
+    "energy_start": 765,
+    "energy_end": 800,
+    "energy_step": 0.1,
+    "loss_start": -6,
+    "loss_end": 15,
+    "loss_step": 0.05,
+    "FWHM_lorentz1": 1.0,
+    "FWHM_lorentz1b": 0.7,
+    "FWHM_lorentz2": 0.8,
+    "Eshift": 0.0,
+    "L3_L2_split": 9999,
+    "pol": 0
+  }
+}
