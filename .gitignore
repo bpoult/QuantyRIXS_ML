@@ -17,8 +17,8 @@ C:/
 *.log
 
 # Dataset files
-data/
-models/
+/data/
+/models/
 *.h5
 *.joblib
 *.log

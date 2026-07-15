@@ -111,18 +111,14 @@ def run_quanty_sim(folder_path, lua_file="TM_Ledge_spec_job.lua", lua_file_path=
         os.chdir(original_dir)
 
 
-def extract_from_spec(folder_path, spec_file, timeout=None):
+def extract_from_spec(spec_path):
     """
     Take the Quanty XAS output data then extract the Energy and Intensity Column
 
     Parameters:
     -----------
-    folder_path : str or Path
-        Path to folder containing .txt file
-    spec_file : str
-        Name of the Quanty Output file to parse
-    timeout : int, optional
-        Maximum time in seconds to wait for simulation (default: None, no timeout)
+    spec_path : str
+        Path to the file the Quanty output .txt to parse
     
     Returns:
     --------
@@ -135,15 +131,9 @@ def extract_from_spec(folder_path, spec_file, timeout=None):
     """
 
     #Convert to Path object for easier manipulation
-    folder_path = Path(folder_path)
-
-    # Verify folder exists
-    if not folder_path.exists():
-        raise FileNotFoundError(f"Folder not found: {folder_path}")
+    spec_path = Path(spec_path)
     
     # Verify spec_file exists in folder
-    spec_path = folder_path / spec_file
-
     if not spec_path.exists():
         raise FileNotFoundError(f"File not found: {spec_path}")
     
@@ -152,6 +142,41 @@ def extract_from_spec(folder_path, spec_file, timeout=None):
 
     energy = data[:, 0]
     intensity = data[:, 2]
+
+
+    return {'Energy': energy, 'Intensity': intensity}
+
+def extract_from_experiment(experiment_path):
+    """
+    Take the Experimental Spectrum output data then extract the Energy and Intensity Column
+
+    Parameters:
+    -----------
+    experiment_path : str or Path
+        Path to the experiment output .txt file to parse
+    
+    Returns:
+    --------
+    result : {'Energy': energy, 'Intensity': intensity}
+        Dictionary that contains 2 np.arrays as the values
+    
+    Raises:
+    -------
+    FileNotFoundError : if folder or output file doesn't exist
+    """
+
+    #Convert to Path object for easier manipulation
+    experiment_path = Path(experiment_path)
+    
+    # Verify spec_file exists in folder
+    if not experiment_path.exists():
+        raise FileNotFoundError(f"File not found: {experiment_path}")
+    
+    # assign data var with numerical data from text file, skip first 5 rows of header lines
+    data = np.loadtxt(experiment_path)
+
+    energy = data[:, 0]
+    intensity = data[:, 1]
 
 
     return {'Energy': energy, 'Intensity': intensity}
