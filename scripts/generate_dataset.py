@@ -100,7 +100,7 @@ def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bou
 
         # Extract energy grid and intensity array from the first output file
         spec_file = saved_files[0]
-        extracted_result = extract_from_spec(folder_path=sim_dir, spec_file=spec_file)
+        extracted_result = extract_from_spec(sim_dir / spec_file)
 
         # Delete .txt spectrum file to save space
         (sim_dir / spec_file).unlink()
@@ -128,3 +128,13 @@ if __name__ == "__main__":
     PARAMS_SETUP = config['PARAMS_SETUP']
     PARAMS_RIXS = config['PARAMS_RIXS']
     generate_dataset(args.N, args.d, args.output_path, args.lua_file_path, args.l_bounds, args.u_bounds, PARAMS_SETUP, PARAMS_RIXS)
+
+    # Generate reference spectrum from completed dataset
+    logger.info("Generating reference spectrum from dataset...")
+    with h5py.File(Path(args.output_path) / 'dataset.h5', 'r') as f:
+        spectra = f['Spectra'][:]
+
+    reference_spectrum = np.mean(spectra, axis=0)
+    reference_path = REPO_ROOT / 'data' / 'reference_spectrum.npy'
+    np.save(str(reference_path), reference_spectrum)
+    logger.info(f"Reference spectrum saved to {reference_path}")

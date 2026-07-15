@@ -1,7 +1,7 @@
 import numpy as np
 import subprocess
 
-from joblib import dump, load
+from joblib import dump
 from pathlib import Path
 from src.data import load_dataset
 from sklearn.model_selection import train_test_split
@@ -112,12 +112,13 @@ def evaluate_model(model: MultiOutputRegressor,
 
     y_pred = model.predict(x_test)
 
-    param_errors = np.abs(y_pred - y_test)
-    logger.info(f"MAE ten_dq_i: {param_errors[:, 0].mean():.4f} eV")
-    logger.info(f"MAE ten_dq_f: {param_errors[:, 1].mean():.4f} eV")
-    logger.info(f"Max error ten_dq_i: {param_errors[:, 0].max():.4f} eV")
-    logger.info(f"Max error ten_dq_f: {param_errors[:, 1].max():.4f} eV")
-    
+    if y_test is not None and y_test.size > 0:
+        param_errors = np.abs(y_pred - y_test)
+        logger.info(f"MAE ten_dq_i: {param_errors[:, 0].mean():.4f} eV")
+        logger.info(f"MAE ten_dq_f: {param_errors[:, 1].mean():.4f} eV")
+        logger.info(f"Max error ten_dq_i: {param_errors[:, 0].max():.4f} eV")
+        logger.info(f"Max error ten_dq_f: {param_errors[:, 1].max():.4f} eV")
+
     pred_specs = []
     successful_indices = []
 
@@ -168,7 +169,7 @@ def evaluate_model(model: MultiOutputRegressor,
 
         # Extract energy grid and intensity array from the first output file
         spec_file = saved_files[0]
-        extracted_result = extract_from_spec(folder_path=sim_dir, spec_file=spec_file)
+        extracted_result = extract_from_spec(sim_dir / spec_file)
 
         # Delete .txt spectrum file to save space
         (sim_dir / spec_file).unlink()
@@ -195,6 +196,6 @@ def evaluate_model(model: MultiOutputRegressor,
     logger.info(f'RMSE: {rmse:.4f}')
     logger.info(f'Cosine Similarity: {cosine_similarity:.4f}')
 
-    return rmse, cosine_similarity
+    return rmse, cosine_similarity, pred_specs
 
     
