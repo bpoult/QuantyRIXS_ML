@@ -131,7 +131,7 @@ def evaluate_model(model: MultiOutputRegressor,
     # Loop will handle generating the inp files, simulating a simulation, extracting the spectrum, and standardizing it 
     # to fit the reference_grid and normalized for intensity. Each standardized spectrum will be appended to pred_specs
     for i, p in enumerate(y_pred):
-        # logger.info(f'Predicted Parameters: \n{y_pred}')
+        logger.info(f'Predicted Parameters: \n{y_pred}')
 
         # Each simulation gets its own subdirectory to avoid file overwrites
         sim_dir = Path(output_path)/ "simulations_with_pred_params" / f"sim_{i:04d}"
