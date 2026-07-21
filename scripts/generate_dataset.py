@@ -123,7 +123,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate XAS simulation dataset")
     parser.add_argument('--N', type=int, default=2000)
     parser.add_argument('--d', type=int, default=2)
-    parser.add_argument('--output_path', type=str, default=str(REPO_ROOT / 'data' / 'medium_dataset'))
+    parser.add_argument('--output_path', type=str, default=str(REPO_ROOT / 'data' / 'co_terpy_L3_data'))
     parser.add_argument('--lua_file_path', type=str, default=str(REPO_ROOT))
     parser.add_argument('--l_bounds', type=float, nargs='+', default=[0.5, 0.75])
     parser.add_argument('--u_bounds', type=float, nargs='+', default=[5.0, 1.0])
@@ -131,22 +131,24 @@ if __name__ == "__main__":
     parser.add_argument('--spectrum_type', type=str, default='L3')
     args = parser.parse_args()
 
-    config_file = f'{args.complex}_{args.spectrum_type}_params.json'
+    complex_spec_type = f'{args.complex}_{args.spectrum_type}'
+    output_path = args.output_path / f'{complex_spec_type}_data'
+
+    config_file = f'{complex_spec_type}_params.json'
     config = load_config(config_file)
     PARAMS_SETUP = config['PARAMS_SETUP']
     PARAMS_RIXS = config['PARAMS_RIXS']
-    generate_dataset(args.N, args.d, args.output_path, args.lua_file_path, args.l_bounds, args.u_bounds, PARAMS_SETUP, PARAMS_RIXS)
+    generate_dataset(args.N, args.d, output_path, args.lua_file_path, args.l_bounds, args.u_bounds, PARAMS_SETUP, PARAMS_RIXS)
 
     # Generate reference spectrum from completed dataset
     logger.info("Generating reference spectrum from dataset...")
-    with h5py.File(Path(args.output_path) / 'dataset.h5', 'r') as f:
+    with h5py.File(Path(output_path) / 'dataset.h5', 'r') as f:
         spectra = f['Spectra'][:]
 
     reference_spectrum = np.mean(spectra, axis=0)
 
     # Ex.) REPO_ROOT/data/co_terpy_L3L2_reference_spectrum.npy
-    config_spec_type = f'{args.complex}_{args.spectrum_type}_reference_spectrum.npy'
-    reference_path = REPO_ROOT / 'data' / f'{config_spec_type}'
+    reference_path = output_path / f'{complex_spec_type}_reference_spectrum.npy'
 
     np.save(str(reference_path), reference_spectrum)
     logger.info(f"Reference spectrum saved to {reference_path}")
