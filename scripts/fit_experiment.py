@@ -25,7 +25,7 @@ if __name__ == "__main__":
     complex_spec_type = f'{args.complex}_{args.spectrum_type}'
     config_file = f"{complex_spec_type}_params.json"
     model_path = f"models/gradient_boost_{complex_spec_type}.joblib"
-    reference_path = f"data/{complex_spec_type}_reference_spectrum.npy"
+    reference_path = f"data/{complex_spec_type}_data/{complex_spec_type}_reference_spectrum.npy"
 
     # Load in all files
     config = load_config(config_file)
