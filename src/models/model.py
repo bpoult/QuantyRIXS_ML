@@ -15,9 +15,10 @@ logger = setup_logger()
 
 def train_model(dataset_path: str, model_path: str = 'models/gradient_boost.joblib'):
     """
-    Loads a simulated XAS dataset, splits it into training and test sets,
-    trains a MultiOutputRegressor wrapping GradientBoostingRegressor to predict
-    crystal field parameters from spectra, and saves the trained model to disk.
+    Loads a simulated XAS dataset, splits it into training and test sets, 
+    augments noise to all spectra in the training data, trains a MultiOutputRegressor 
+    wrapping GradientBoostingRegressor to predict crystal field parameters from spectra, 
+    and saves the trained model to disk.
 
     Parameters:
     -----------
@@ -47,6 +48,11 @@ def train_model(dataset_path: str, model_path: str = 'models/gradient_boost.jobl
     x_train, x_test, y_train, y_test = train_test_split(
     x, y, test_size=0.2, random_state=42)
 
+    # Noise Augmentation to training data
+    noise_levels = np.random.uniform(low=0.0, high=0.05, size=(x_train.shape[0], 1))
+    noise = np.random.normal(loc=0, scale=noise_levels, size=x_train.shape)
+    x_train_noisy = np.clip(x_train + noise, 0, None)
+
     # GradientBoostingRegressor only handles 1 output at a time
     base_model = GradientBoostingRegressor(
         n_estimators=100,
@@ -57,7 +63,7 @@ def train_model(dataset_path: str, model_path: str = 'models/gradient_boost.jobl
     # MultiOutputRegressor splits y data into d separate targets, and trains one
     # GradientBoostingRegressor for each target
     model = MultiOutputRegressor(base_model)
-    model.fit(x_train, y_train)
+    model.fit(x_train_noisy, y_train)
 
     # Ensure model directory exists and save trained model to disk
     model_path = Path(model_path)
@@ -125,6 +131,8 @@ def evaluate_model(model: MultiOutputRegressor,
     # Loop will handle generating the inp files, simulating a simulation, extracting the spectrum, and standardizing it 
     # to fit the reference_grid and normalized for intensity. Each standardized spectrum will be appended to pred_specs
     for i, p in enumerate(y_pred):
+        logger.info(f'Predicted Parameters: \n{y_pred}')
+
         # Each simulation gets its own subdirectory to avoid file overwrites
         sim_dir = Path(output_path)/ "simulations_with_pred_params" / f"sim_{i:04d}"
         sim_dir.mkdir(parents=True, exist_ok=True)

@@ -105,7 +105,7 @@ def run_quanty_sim(folder_path, lua_file="TM_Ledge_spec_job.lua", lua_file_path=
         
     finally:
         # Delete Lua file from directory for space preservation
-        lua_path.unlink()
+        # lua_path.unlink()
 
         # Always return to original directory
         os.chdir(original_dir)
