@@ -102,10 +102,10 @@ def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bou
 
         # Extract energy grid and intensity array from the first output file
         spec_file = saved_files[0]
-        print(f'spec file: {spec_file}')
+        # print(f'spec file: {spec_file}')
         extracted_result = extract_from_spec(sim_dir / spec_file)
-        print(f'extracted result: {extracted_result}')
-        print(f'extracted result size: {extracted_result['Intensity'].size}')
+        # print(f'extracted result: {extracted_result}')
+        # print(f'extracted result size: {extracted_result['Intensity'].size}')
 
 
         # Delete .txt spectrum file to save space
@@ -127,10 +127,12 @@ if __name__ == "__main__":
     parser.add_argument('--lua_file_path', type=str, default=str(REPO_ROOT))
     parser.add_argument('--l_bounds', type=float, nargs='+', default=[0.5, 0.75])
     parser.add_argument('--u_bounds', type=float, nargs='+', default=[5.0, 1.0])
-    parser.add_argument('--config', type=str, default='co_terpy_L3_params.json')
+    parser.add_argument('--complex', type=str, default='co_terpy')
+    parser.add_argument('--spectrum_type', type=str, default='L3')
     args = parser.parse_args()
 
-    config = load_config(args.config)
+    config_file = f'{args.complex}_{args.spectrum_type}_params.json'
+    config = load_config(config_file)
     PARAMS_SETUP = config['PARAMS_SETUP']
     PARAMS_RIXS = config['PARAMS_RIXS']
     generate_dataset(args.N, args.d, args.output_path, args.lua_file_path, args.l_bounds, args.u_bounds, PARAMS_SETUP, PARAMS_RIXS)
