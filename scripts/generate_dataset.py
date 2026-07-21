@@ -145,7 +145,7 @@ if __name__ == "__main__":
     reference_spectrum = np.mean(spectra, axis=0)
 
     # Ex.) REPO_ROOT/data/co_terpy_L3L2_reference_spectrum.npy
-    config_spec_type = args.config[:-10]
+    config_spec_type = config[:-10]
     reference_path = REPO_ROOT / 'data' / f'{config_spec_type}_reference_spectrum.npy'
 
     np.save(str(reference_path), reference_spectrum)
