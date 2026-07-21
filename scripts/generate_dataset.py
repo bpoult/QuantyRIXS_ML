@@ -123,7 +123,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate XAS simulation dataset")
     parser.add_argument('--N', type=int, default=2000)
     parser.add_argument('--d', type=int, default=2)
-    parser.add_argument('--output_path', type=str, default=str(REPO_ROOT / 'data' / 'co_terpy_L3_data'))
+    parser.add_argument('--output_path', type=str, default=str(REPO_ROOT / 'data'))
     parser.add_argument('--lua_file_path', type=str, default=str(REPO_ROOT))
     parser.add_argument('--l_bounds', type=float, nargs='+', default=[0.5, 0.75])
     parser.add_argument('--u_bounds', type=float, nargs='+', default=[5.0, 1.0])
@@ -132,7 +132,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     complex_spec_type = f'{args.complex}_{args.spectrum_type}'
-    output_path = args.output_path / f'{complex_spec_type}_data'
+    output_path = Path(args.output_path) / f'{complex_spec_type}_data'
 
     config_file = f'{complex_spec_type}_params.json'
     config = load_config(config_file)
