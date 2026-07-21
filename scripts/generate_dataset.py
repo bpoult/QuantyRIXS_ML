@@ -91,7 +91,9 @@ def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bou
         # Parse stdout to find saved .txt spectrum files
         # Ex) 'Saved File: XASisoL3_GS_Oh_1.txt' → 'XASisoL3_GS_Oh_1.txt'
         lines = sim_result.stdout.split('\n')
+        print(f'lines: {lines}')
         saved_files = list(set([line.split()[-1] for line in lines if line.endswith('.txt')]))
+        print(f'saved_files: {saved_files}')
 
          # Check to see if the saved files exist 
         if not saved_files:
@@ -100,10 +102,14 @@ def generate_dataset(N: int, d: int, output_path: str, lua_file_path: str, l_bou
 
         # Extract energy grid and intensity array from the first output file
         spec_file = saved_files[0]
+        print(f'spec file: {spec_file}')
         extracted_result = extract_from_spec(sim_dir / spec_file)
+        print(f'extracted result: {extracted_result}')
+        print(f'extracted result size: {extracted_result['Intensity'].size}')
+
 
         # Delete .txt spectrum file to save space
-        (sim_dir / spec_file).unlink()
+        # (sim_dir / spec_file).unlink()
 
         # Store all data into variables to save
         standardized = standardize_spectrum(extracted_result['Energy'], extracted_result['Intensity'], reference_grid)
@@ -121,7 +127,7 @@ if __name__ == "__main__":
     parser.add_argument('--lua_file_path', type=str, default=str(REPO_ROOT))
     parser.add_argument('--l_bounds', type=float, nargs='+', default=[0.5, 0.75])
     parser.add_argument('--u_bounds', type=float, nargs='+', default=[5.0, 1.0])
-    parser.add_argument('--config', type=str, default='co_terpy_params.json')
+    parser.add_argument('--config', type=str, default='co_terpy_L3_params.json')
     args = parser.parse_args()
 
     config = load_config(args.config)
@@ -135,6 +141,10 @@ if __name__ == "__main__":
         spectra = f['Spectra'][:]
 
     reference_spectrum = np.mean(spectra, axis=0)
-    reference_path = REPO_ROOT / 'data' / 'reference_spectrum.npy'
+
+    # Ex.) REPO_ROOT/data/co_terpy_L3L2_reference_spectrum.npy
+    config_spec_type = args.config[:-10]
+    reference_path = REPO_ROOT / 'data' / f'{config_spec_type}_reference_spectrum.npy'
+
     np.save(str(reference_path), reference_spectrum)
     logger.info(f"Reference spectrum saved to {reference_path}")
