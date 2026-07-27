@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=1              # 1 CPU per task
 #SBATCH --mem=4G                         # memory per task
 #SBATCH --time=00:45:00                # time limit per task 
-#SBATCH --partition=FILL_IN            # confirm with mentor
+#SBATCH --partition=milano           # confirm with mentor
 #SBATCH --output=logs/batch_%a.log    # one log file per batch
 #SBATCH --error=logs/batch_%a.err      # one error file per batch
 
