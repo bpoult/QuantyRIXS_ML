@@ -134,8 +134,8 @@ def load_dataset(dataset_path: str):
         ten_dq_f = f['Params']['ten_dq_f'][:]
         Ds_3d_i = f['Params']['Ds_3d_i'][:]
         Dt_3d_i = f['Params']['Dt_3d_i'][:]
-        scalef2_3d3d_i = f['Params'][scalef2_3d3d_i][:]
-        scalef4_3d3d_i = f['Params'][scalef4_3d3d_i][:]
+        scalef2_3d3d_i = f['Params']['scalef2_3d3d_i'][:]
+        scalef4_3d3d_i = f['Params']['scalef4_3d3d_i'][:]
         scaleg = f['Params']['scaleg'][:]
         
         params_arr = np.stack([ten_dq_i, ten_dq_f, Ds_3d_i, Dt_3d_i, scalef2_3d3d_i, scalef4_3d3d_i, scaleg], axis=1)  # shape (N, d (num of parameters))
