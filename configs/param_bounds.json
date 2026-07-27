@@ -1,0 +1,11 @@
+{
+    "CRYSTAL_FIELD": {
+        "UPPER_BOUNDS": [5,       1,       0.2,    0.1,       0.8,            0.8,         0.8], 
+        "LOWER_BOUNDS": [0.5,     0.75,   -0.2,   -0.1,       0.2,            0.2,         0.2],
+        "//": "         10DQ_i, 10DQ_f, Ds_3d_i, Dt_3d_i, scalef2_3d3d_i, scalef4_3d3d_i, scaleg"
+    },
+    
+    "CHARGE_TRANSFER": {
+
+    }
+}

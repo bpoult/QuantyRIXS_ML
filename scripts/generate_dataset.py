@@ -6,7 +6,7 @@ from src.params import CrystalFieldParams
 from src.data import save_simulation
 from src.spectra import run_quanty_sim, extract_from_spec, generate_inp_quanty, generate_inp_rixs, build_quanty_dicts, standardize_spectrum
 from src.sampling import latin_hypercube_sampling
-from src.utils import setup_logger, load_config
+from src.utils import setup_logger, load_config, load_bounds
 from pathlib import Path
 
 logger = setup_logger()
@@ -17,11 +17,11 @@ FNAME_RIXS = 'GS_Oh.inp_rixs'
 def generate_dataset(N: int, 
                      start_index: int, 
                      end_index: int, 
-                     d: int, 
+                    #  d: int, 
                      output_path: str, 
                      lua_file_path: str, 
-                     l_bounds: list, 
-                     u_bounds: list, 
+                    #  l_bounds: list, 
+                    #  u_bounds: list, 
                      PARAMS_SETUP: dict, 
                      PARAMS_RIXS: dict):
     """
@@ -48,6 +48,12 @@ def generate_dataset(N: int,
         Upper bounds for each sampled parameter, length d.
     """
 
+    # Load boundaries from configs directory
+    bounds = load_bounds('param_bounds.json')
+    u_bounds = bounds["UPPER_BOUNDS"]
+    l_bounds = bounds["LOWER_BOUNDS"]
+    d = len(l_bounds)
+
     # Creates matrix of shape (N, d) with LHS-sampled parameter values — 
     # guarantees even coverage across [l_bounds, u_bounds] with one sample per stratum
     lhs_sample_matrix = latin_hypercube_sampling(N, d, l_bounds, u_bounds)
@@ -66,7 +72,20 @@ def generate_dataset(N: int,
         # Sample a random parameter values with Latin Hypercube Sampling and wrap it in a CrystalFieldParams object
         ten_dq_i = lhs_sample_matrix[i, 0]
         ten_dq_f = ten_dq_i * lhs_sample_matrix[i, 1]
-        cf_params = CrystalFieldParams(ten_dq_i=ten_dq_i, ten_dq_f=ten_dq_f)
+        Ds_3d_i = lhs_sample_matrix[i, 2]
+        Dt_3d_i = lhs_sample_matrix[i, 3]
+        scalef2_3d3d_i = lhs_sample_matrix[i, 4]
+        scalef4_3d3d_i = lhs_sample_matrix[i, 5]
+        scaleg = lhs_sample_matrix[i, 6]
+
+
+        cf_params = CrystalFieldParams(ten_dq_i=ten_dq_i, 
+                                       ten_dq_f=ten_dq_f,
+                                       Ds_3d_i = Ds_3d_i,
+                                       Dt_3d_i = Dt_3d_i,
+                                       scalef2_3d3d_i = scalef2_3d3d_i,
+                                       scalef4_3d3d_i = scalef4_3d3d_i,
+                                       scaleg = scaleg)
 
         # Merge sampled params with fixed constants into Quanty-ready dicts
         params_i, params_f, params_setup, params_rixs = build_quanty_dicts(
@@ -108,16 +127,22 @@ def generate_dataset(N: int,
         local_index = i - start_index
         save_simulation(standardized, reference_grid, cf_params, dataset_path, PARAMS_SETUP, local_index)
 
-        logger.info(f"[{i+1}/{N}] ten_dq_i = {ten_dq_i:.3f} eV ==> ten_dq_f = {ten_dq_f:.3f} eV  —  done")
+        logger.info(
+            f"[{i+1}/{N}] done — "
+            f"ten_dq_i={ten_dq_i:.3f} | "
+            f"ten_dq_f={ten_dq_f:.3f} | "
+            f"Ds_3d_i={Ds_3d_i:.3f} | "
+            f"Dt_3d_i={Dt_3d_i:.3f} | "
+            f"scalef2={scalef2_3d3d_i:.3f} | "
+            f"scalef4={scalef4_3d3d_i:.3f} | "
+            f"scaleg={scaleg:.3f} eV"
+        )
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate XAS simulation dataset")
     parser.add_argument('--N', type=int, default=2000)
-    parser.add_argument('--d', type=int, default=2)
     parser.add_argument('--output_path', type=str, default=str(REPO_ROOT / 'data'))
     parser.add_argument('--lua_file_path', type=str, default=str(REPO_ROOT))
-    parser.add_argument('--l_bounds', type=float, nargs='+', default=[0.5, 0.75])
-    parser.add_argument('--u_bounds', type=float, nargs='+', default=[5.0, 1.0])
     parser.add_argument('--complex', type=str, default='co_terpy')
     parser.add_argument('--spectrum_type', type=str, default='L3')
     parser.add_argument('--batch_index', type=int, default=0)
@@ -132,8 +157,10 @@ if __name__ == "__main__":
 
     config_file = f'{complex_spec_type}_params.json'
     config = load_config(config_file)
+
     PARAMS_SETUP = config['PARAMS_SETUP']
     PARAMS_RIXS = config['PARAMS_RIXS']
-    generate_dataset(args.N, start_index, end_index, args.d, batch_output_path, args.lua_file_path, args.l_bounds, args.u_bounds, PARAMS_SETUP, PARAMS_RIXS)
+    
+    generate_dataset(args.N, start_index, end_index, batch_output_path, args.lua_file_path, PARAMS_SETUP, PARAMS_RIXS)
 
    
