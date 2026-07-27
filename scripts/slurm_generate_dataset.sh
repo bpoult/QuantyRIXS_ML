@@ -1,5 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=quanty_dataset
+#SBATCH --account=lcls:rix100836924
 #SBATCH --array=0-9                      # 10 batches (fill in based on num_batches)
 #SBATCH --ntasks=1                       # 1 task per array job
 #SBATCH --cpus-per-task=1              # 1 CPU per task
