@@ -35,9 +35,7 @@ class CrystalFieldParams:
     U_2p_3d_f: float = 6.0
     scalef2_2p3d: float = 0.2
     scale_2pSOC: float = 0.8
-    E_2p: float = 754.7
-
-    # --- initial state ---
+    E_2p: float = 754.95
    
 
     def __post_init__(self):
