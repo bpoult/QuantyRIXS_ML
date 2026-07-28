@@ -19,6 +19,6 @@ python3 /sdf/home/p/pierop/QuantyRIXS_ML/scripts/generate_dataset.py \
     --batch_index $SLURM_ARRAY_TASK_ID \
     --batch_size 500 \
     --complex co_terpy \
-    --spectrum_type L3L2 \
+    --spectrum_type L3 \
     --output_path /sdf/home/p/pierop/QuantyRIXS_ML/data \
     --lua_file_path /sdf/home/p/pierop/QuantyRIXS_ML/
