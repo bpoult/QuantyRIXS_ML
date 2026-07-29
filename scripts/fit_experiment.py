@@ -42,14 +42,18 @@ if __name__ == "__main__":
     experiment_data = extract_from_experiment(experiment_path)
     experiment_spectrum = standardize_spectrum(experiment_data['Energy'], experiment_data['Intensity'], reference_grid).reshape(1, -1)
 
-    # # Add Gaussian Smoothing to 
-    # experiment_spectrum = gaussian_filter1d(experiment_spectrum, sigma=1.0)
-
     # Align the desired spectrum to another and log the energy shift
     aligned_experimental, energy_shift = align_spectrum(experiment_spectrum, reference_spectrum, reference_grid)
     logger.info(f"Energy shift applied: {energy_shift:.4f} eV")
 
-    rmse, cosine_sim, pred_specs = evaluate_model(model, aligned_experimental, None, reference_grid, args.output_path, PARAMS_SETUP, PARAMS_RIXS, args.lua_file, args.lua_file_path)
+    rmse, cosine_sim, pred_specs, pred_params = evaluate_model(model, aligned_experimental, None, reference_grid, args.output_path, PARAMS_SETUP, PARAMS_RIXS, args.lua_file, args.lua_file_path)
 
-    print(f"RMSE: {rmse:.4f}")
-    print(f"Cosine similarity: {cosine_sim:.4f}")
+    logger.info(
+                f"ten_dq_i={pred_params[0]:.3f} | "
+                f"ten_dq_f={pred_params[1]:.3f} | "
+                f"Ds_3d_i={pred_params[2]:.3f} | "
+                f"Dt_3d_i={pred_params[3]:.3f} | "
+                f"scalef2={pred_params[4]:.3f} | "
+                f"scalef4={pred_params[5]:.3f} | "
+                f"scaleg={pred_params[6]:.3f} eV"
+            )

@@ -213,6 +213,6 @@ def evaluate_model(model: MultiOutputRegressor,
     logger.info(f'RMSE: {rmse:.4f}')
     logger.info(f'Cosine Similarity: {cosine_similarity:.4f}')
 
-    return rmse, cosine_similarity, pred_specs
+    return rmse, cosine_similarity, pred_specs, y_pred
 
     
