@@ -5,11 +5,11 @@ from joblib import dump
 from pathlib import Path
 from src.data import load_dataset
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.multioutput import MultiOutputRegressor
+import lightgbm as lgb
 from src.params import CrystalFieldParams
 from src.spectra import build_quanty_dicts, generate_inp_quanty, generate_inp_rixs, run_quanty_sim, extract_from_spec, standardize_spectrum
-from src.utils import setup_logger, load_config
+from src.utils import setup_logger
 
 logger = setup_logger()
 
@@ -17,7 +17,7 @@ def train_model(dataset_path: str, model_path: str = 'models/gradient_boost.jobl
     """
     Loads a simulated XAS dataset, splits it into training and test sets, 
     augments noise to all spectra in the training data, trains a MultiOutputRegressor 
-    wrapping GradientBoostingRegressor to predict crystal field parameters from spectra, 
+    wrapping LGBMRegressor to predict crystal field parameters from spectra, 
     and saves the trained model to disk.
 
     Parameters:
@@ -54,15 +54,19 @@ def train_model(dataset_path: str, model_path: str = 'models/gradient_boost.jobl
     x_train_noisy = np.clip(x_train + noise, 0, None)
 
     # GradientBoostingRegressor only handles 1 output at a time
-    base_model = GradientBoostingRegressor(
-        n_estimators=100,
-        learning_rate=0.1,
-        max_depth=4
+    base_model = lgb.LGBMRegressor(
+        n_estimators=300,
+        learning_rate=0.05,
+        max_depth=6,
+        num_leaves=63,
+        subsample=0.8,
+        colsample_bytree=0.8,
+        n_jobs=-1
     )
 
     # MultiOutputRegressor splits y data into d separate targets, and trains one
-    # GradientBoostingRegressor for each target
-    model = MultiOutputRegressor(base_model)
+    # LGBMRegressor for each target
+    model = MultiOutputRegressor(base_model, n_jobs=-1)
     model.fit(x_train_noisy, y_train)
 
     # Ensure model directory exists and save trained model to disk
@@ -70,7 +74,6 @@ def train_model(dataset_path: str, model_path: str = 'models/gradient_boost.jobl
     model_path.parent.mkdir(parents=True, exist_ok=True)
     dump(model, model_path)
     logger.info(f'Training Complete')
-    
 
     return model, x_test, y_test
 

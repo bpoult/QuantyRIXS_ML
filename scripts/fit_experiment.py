@@ -1,9 +1,7 @@
 import numpy as np
-import h5py
 import argparse
 from joblib import load
 from pathlib import Path
-from scipy.ndimage import gaussian_filter1d
 from src.spectra import extract_from_experiment, standardize_spectrum, align_spectrum
 from src.utils import setup_logger, load_config
 from src.models import evaluate_model

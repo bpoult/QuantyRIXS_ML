@@ -129,7 +129,7 @@ def load_dataset(dataset_path: str):
         energies = f['Energies'][:]
         spectra = f['Spectra'][:]
 
-        # Load each parameter column then stack into shape (N, 4) for from_array
+        # Load each parameter column then stack into shape (N, d) for from_array
         ten_dq_i = f['Params']['ten_dq_i'][:]
         ten_dq_f = f['Params']['ten_dq_f'][:]
         Ds_3d_i = f['Params']['Ds_3d_i'][:]
@@ -137,7 +137,7 @@ def load_dataset(dataset_path: str):
         scalef2_3d3d_i = f['Params']['scalef2_3d3d_i'][:]
         scalef4_3d3d_i = f['Params']['scalef4_3d3d_i'][:]
         scaleg = f['Params']['scaleg'][:]
-        
+
         params_arr = np.stack([ten_dq_i, ten_dq_f, Ds_3d_i, Dt_3d_i, scalef2_3d3d_i, scalef4_3d3d_i, scaleg], axis=1)  # shape (N, d (num of parameters))
         params = [CrystalFieldParams.from_array(params_arr[i]) for i in range(len(params_arr))]
 
