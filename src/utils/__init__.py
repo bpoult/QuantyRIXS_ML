@@ -1,2 +1,2 @@
 from .logging_config import setup_logger
-from .config import load_config
+from .config import load_config, load_bounds

@@ -122,8 +122,11 @@ def evaluate_model(model: MultiOutputRegressor,
         param_errors = np.abs(y_pred - y_test)
         logger.info(f"MAE ten_dq_i: {param_errors[:, 0].mean():.4f} eV")
         logger.info(f"MAE ten_dq_f: {param_errors[:, 1].mean():.4f} eV")
-        logger.info(f"Max error ten_dq_i: {param_errors[:, 0].max():.4f} eV")
-        logger.info(f"Max error ten_dq_f: {param_errors[:, 1].max():.4f} eV")
+        logger.info(f"MAE Ds_3d_i: {param_errors[:, 2].mean():.4f} eV")
+        logger.info(f"MAE Dt_3d_i: {param_errors[:, 3].mean():.4f} eV")
+        logger.info(f"MAE scalef2: {param_errors[:, 4].mean():.4f}")
+        logger.info(f"MAE scalef4: {param_errors[:, 5].mean():.4f}")
+        logger.info(f"MAE scaleg: {param_errors[:, 6].mean():.4f}")
 
     pred_specs = []
     successful_indices = []
@@ -131,7 +134,6 @@ def evaluate_model(model: MultiOutputRegressor,
     # Loop will handle generating the inp files, simulating a simulation, extracting the spectrum, and standardizing it 
     # to fit the reference_grid and normalized for intensity. Each standardized spectrum will be appended to pred_specs
     for i, p in enumerate(y_pred):
-        logger.info(f'Predicted Parameters: \n{y_pred}')
 
         # Each simulation gets its own subdirectory to avoid file overwrites
         sim_dir = Path(output_path)/ "simulations_with_pred_params" / f"sim_{i:04d}"
@@ -139,12 +141,19 @@ def evaluate_model(model: MultiOutputRegressor,
 
         ten_dq_i = p[0]
         ten_dq_f = p[1]
+        Ds_3d_i = p[2]
+        Dt_3d_i = p[3]
+        scalef2_3d3d_i = p[4]
+        scalef4_3d3d_i = p[5]
+        scaleg = p[6]
 
-        # logger.info(f'Predicted Parameters for simulation {i}:')
-        # logger.info(f'ten_dq_i: {ten_dq_i}')
-        # logger.info(f'ten_dq_f: {ten_dq_f}')
-
-        cf_params = CrystalFieldParams(ten_dq_i, ten_dq_f)
+        cf_params = CrystalFieldParams(ten_dq_i=ten_dq_i, 
+                                       ten_dq_f=ten_dq_f,
+                                       Ds_3d_i = Ds_3d_i,
+                                       Dt_3d_i = Dt_3d_i,
+                                       scalef2_3d3d_i = scalef2_3d3d_i,
+                                       scalef4_3d3d_i = scalef4_3d3d_i,
+                                       scaleg = scaleg)
 
         # Merge sampled params with fixed constants into Quanty-ready dicts
         params_i, params_f, params_setup, params_rixs = build_quanty_dicts(
@@ -204,6 +213,6 @@ def evaluate_model(model: MultiOutputRegressor,
     logger.info(f'RMSE: {rmse:.4f}')
     logger.info(f'Cosine Similarity: {cosine_similarity:.4f}')
 
-    return rmse, cosine_similarity, pred_specs
+    return rmse, cosine_similarity, pred_specs, y_pred.flatten()
 
     

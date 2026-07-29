@@ -1,8 +1,9 @@
 from pathlib import Path
 import json
 
+REPO_ROOT = Path(__file__).parent.parent.parent  # QuantyRIXS_ML/src/utils → QuantyRIXS_ML → repo root
+
 def load_config(config_file: str ):
-    REPO_ROOT = Path(__file__).parent.parent.parent  # QuantyRIXS_ML/src/utils → QuantyRIXS_ML → repo root
     config_path = REPO_ROOT / 'configs' / config_file
 
     with open(Path(config_path), 'r') as f:
@@ -12,3 +13,11 @@ def load_config(config_file: str ):
     config['PARAMS_SETUP']['rcn_file'] = str(REPO_ROOT / config['PARAMS_SETUP']['rcn_file'])
     
     return config
+
+def load_bounds(bounds_file: str):
+    bounds_path = REPO_ROOT / 'configs' / bounds_file
+
+    with open(Path(bounds_path), 'r') as f:
+        bounds = json.load(f)
+
+    return bounds["CRYSTAL_FIELD"]
