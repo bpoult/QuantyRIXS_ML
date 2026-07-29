@@ -17,11 +17,8 @@ FNAME_RIXS = 'GS_Oh.inp_rixs'
 def generate_dataset(N: int, 
                      start_index: int, 
                      end_index: int, 
-                    #  d: int, 
                      output_path: str, 
                      lua_file_path: str, 
-                    #  l_bounds: list, 
-                    #  u_bounds: list, 
                      PARAMS_SETUP: dict, 
                      PARAMS_RIXS: dict):
     """
