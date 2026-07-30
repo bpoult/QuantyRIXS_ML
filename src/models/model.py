@@ -7,6 +7,7 @@ from src.data import load_dataset
 from sklearn.model_selection import train_test_split
 from sklearn.multioutput import MultiOutputRegressor
 import lightgbm as lgb
+from scipy.optimize import minimize
 from src.params import CrystalFieldParams
 from src.spectra import build_quanty_dicts, generate_inp_quanty, generate_inp_rixs, run_quanty_sim, extract_from_spec, standardize_spectrum
 from src.utils import setup_logger
@@ -230,5 +231,50 @@ def evaluate_model(model: MultiOutputRegressor,
     logger.info(f'Cosine Similarity: {cosine_similarity:.4f}')
 
     return rmse, cosine_similarity, pred_specs, y_pred.flatten()
+
+def refine_parameters(
+    initial_params: np.ndarray,      # ML predicted parameters as array
+    experimental_spectrum: np.ndarray, # aligned experimental spectrum
+    reference_grid: np.ndarray,
+    bounds: list,                     # parameter bounds [(min, max), ...]
+    output_path: str,
+    PARAMS_SETUP: dict,
+    PARAMS_RIXS: dict,
+    lua_file_path: str) -> CrystalFieldParams:
+
+    sim_dir = Path(output_path) / "refinement_working_dir"
+    sim_dir.mkdir(parents=True, exist_ok=True)
+    
+    def objective(params_array):
+        # 1. Convert array to CrystalFieldParams
+        cf_params = CrystalFieldParams.from_array(params_array)
+        
+        # 2. Run Quanty
+        params_i, params_f, params_setup, params_rixs = build_quanty_dicts(cf_params, PARAMS_SETUP, PARAMS_RIXS)
+        generate_inp_quanty(params_i, params_f, params_setup, sim_dir, 'GS_Oh.inp_quanty')
+        generate_inp_rixs(params_rixs, sim_dir, 'GS_Oh.inp_rixs')
+        sim_result = run_quanty_sim(sim_dir, 'TM_Ledge_spec_job.lua', lua_file_path, timeout=60)
+        
+        # 3. Extract and standardize
+        lines = sim_result.stdout.split('\n')
+        saved_files = list(set([line.split()[-1] for line in lines if line.endswith('.txt')]))
+        if not saved_files:
+            return 1.0  # return high RMSE if simulation failed
+        extracted = extract_from_spec(sim_dir / saved_files[0])
+        standardized = standardize_spectrum(extracted['Energy'], extracted['Intensity'], reference_grid)
+        
+        # 4. Compute RMSE vs experimental
+        rmse = np.sqrt(np.sum((experimental_spectrum.flatten() - standardized) ** 2) / experimental_spectrum.size)
+        return rmse
+    
+    # Run optimizer
+    result = minimize(
+        objective,
+        x0=initial_params,
+        method='L-BFGS-B',
+        bounds=bounds
+    )
+    
+    return CrystalFieldParams.from_array(result.x), result.fun
 
     
