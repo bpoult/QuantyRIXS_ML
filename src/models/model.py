@@ -57,13 +57,10 @@ def train_model(dataset_path: str, model_path: str):
     base_model = lgb.LGBMRegressor(
         n_estimators=300,
         learning_rate=0.05,
-        max_depth=5,          # reduce from 6
-        num_leaves=31,        # reduce from 63
-        subsample=0.7,        # reduce from 0.8
-        colsample_bytree=0.7, # reduce from 0.8
-        min_child_samples=30, # add this — minimum samples per leaf
-        reg_alpha=0.1,        # add L1 regularization
-        reg_lambda=0.1,       # add L2 regularization
+        max_depth=6,
+        num_leaves=63,
+        subsample=0.8,
+        colsample_bytree=0.8,
         n_jobs=-1
     )
 
