@@ -1,9 +1,7 @@
 import numpy as np
-import h5py
 import argparse
 from joblib import load
 from pathlib import Path
-from scipy.ndimage import gaussian_filter1d
 from src.spectra import extract_from_experiment, standardize_spectrum, align_spectrum
 from src.utils import setup_logger, load_config
 from src.models import evaluate_model
@@ -48,12 +46,11 @@ if __name__ == "__main__":
 
     rmse, cosine_sim, pred_specs, pred_params = evaluate_model(model, aligned_experimental, None, reference_grid, args.output_path, PARAMS_SETUP, PARAMS_RIXS, args.lua_file, args.lua_file_path)
 
-    logger.info(
-                f"ten_dq_i={pred_params[0]:.3f} | "
-                f"ten_dq_f={pred_params[1]:.3f} | "
-                f"Ds_3d_i={pred_params[2]:.3f} | "
-                f"Dt_3d_i={pred_params[3]:.3f} | "
-                f"scalef2={pred_params[4]:.3f} | "
-                f"scalef4={pred_params[5]:.3f} | "
-                f"scaleg={pred_params[6]:.3f} eV"
-            )
+    logger.info(    f"ten_dq_i={pred_params[0]:.3f} | "
+                    f"ten_dq_f={pred_params[1]:.3f} | "
+                    f"Ds_3d_i={pred_params[2]:.3f} | "
+                    f"Dt_3d_i={pred_params[3]:.3f} | "
+                    f"scalef2={pred_params[4]:.3f} | "
+                    f"scalef4={pred_params[5]:.3f} | "
+                    f"scaleg={pred_params[6]:.3f} eV"
+                ) 

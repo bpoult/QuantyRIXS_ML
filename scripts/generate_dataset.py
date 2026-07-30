@@ -33,16 +33,14 @@ def generate_dataset(N: int,
         First index of the batch
     end_index : int
         Last index of the batch
-    d : int
-        Dimensions for Latin Hypercube Sampling (# of parameters that will be changed)
     output_path : str
         Directory where simulation folders and final dataset will be saved.
     lua_file_path : str
         Path to the directory containing the Quanty lua script.
-    l_bounds : list of float
-        Lower bounds for each sampled parameter, length d.
-    u_bounds : list of float
-        Upper bounds for each sampled parameter, length d.
+    PARAMS_SETUP : dict
+        Setup information for the specific complex, used for metadata
+    PARAMS_RIXS : dict
+        RIXS information for specfic complex and spectrum type
     """
 
     # Load boundaries from configs directory
