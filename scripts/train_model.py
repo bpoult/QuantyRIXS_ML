@@ -12,7 +12,7 @@ if __name__ == "__main__":
 
     complex_spec_type = f'{args.complex}_{args.spectrum_type}'
 
-    dataset_path = REPO_ROOT / 'data' / f'{complex_spec_type}_data'
+    dataset_path = REPO_ROOT / 'data' / f'{complex_spec_type}_data' / 'dataset.h5'
     model_path = REPO_ROOT / 'models' / f'gradient_boost_{complex_spec_type}.joblib'
 
     model, x_test, y_test = train_model(dataset_path, model_path)
