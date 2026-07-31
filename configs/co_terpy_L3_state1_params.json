@@ -3,7 +3,7 @@
     "atom": "Co",
     "charge": "3+",
     "edge": "L",
-    "initial_state": 2,
+    "initial_state": 1,
     "rcn_file": "RCNparameter.txt"
   },
   "PARAMS_RIXS": {

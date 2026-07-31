@@ -49,9 +49,9 @@ def train_model(dataset_path: str, model_path: str):
     x, y, test_size=0.2, random_state=42)
 
     # # Noise Augmentation to training data
-    # noise_levels = np.random.uniform(low=0.0, high=0.05, size=(x_train.shape[0], 1))
-    # noise = np.random.normal(loc=0, scale=noise_levels, size=x_train.shape)
-    # x_train_noisy = np.clip(x_train + noise, 0, None)
+    noise_levels = np.random.uniform(low=0.0, high=0.02, size=(x_train.shape[0], 1))
+    noise = np.random.normal(loc=0, scale=noise_levels, size=x_train.shape)
+    x_train_noisy = np.clip(x_train + noise, 0, None)
 
     # GradientBoostingRegressor only handles 1 output at a time
     base_model = lgb.LGBMRegressor(
@@ -67,7 +67,7 @@ def train_model(dataset_path: str, model_path: str):
     # MultiOutputRegressor splits y data into d separate targets, and trains one
     # LGBMRegressor for each target
     model = MultiOutputRegressor(base_model, n_jobs=-1)
-    model.fit(x_train, y_train)
+    model.fit(x_train_noisy, y_train)
 
 
 

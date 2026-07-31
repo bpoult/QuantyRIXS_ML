@@ -108,10 +108,11 @@ if __name__ == "__main__":
     parser.add_argument('--data_path', type=str, default=str(REPO_ROOT / 'data'))
     parser.add_argument('--complex', type=str, default='co_terpy')
     parser.add_argument('--spectrum_type', type=str, default='L3')
+    parser.add_argument('--initial_state', type=str, default='1')
     parser.add_argument('--num_batches', type=int, default=10)
     args = parser.parse_args()
 
-    complex_spec_type = f"{args.complex}_{args.spectrum_type}"
+    complex_spec_type = f"{args.complex}_{args.spectrum_type}_state{args.initial_state}"
     data_path = Path(args.data_path) / f"{complex_spec_type}_data"
 
     merge_datasets(data_path, args.num_batches, complex_spec_type)

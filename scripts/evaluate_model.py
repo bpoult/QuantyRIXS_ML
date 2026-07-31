@@ -14,10 +14,11 @@ if __name__ == "__main__":
     parser.add_argument('--lua_file_path', type=str, default=str(REPO_ROOT))
     parser.add_argument('--complex', type=str, default='co_terpy')
     parser.add_argument('--spectrum_type', type=str, default='L3')
+    parser.add_argument('--initial_state', type=str, default='1')
     parser.add_argument('--config', type=str, default='co_terpy_L3_params.json')
     args = parser.parse_args()
 
-    complex_spec_type = f'{args.complex}_{args.spectrum_type}'
+    complex_spec_type = f"{args.complex}_{args.spectrum_type}_state{args.initial_state}"
 
     config_file = f"{complex_spec_type}_params.json"
     config = load_config(config_file)

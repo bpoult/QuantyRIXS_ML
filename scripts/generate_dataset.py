@@ -140,6 +140,7 @@ if __name__ == "__main__":
     parser.add_argument('--lua_file_path', type=str, default=str(REPO_ROOT))
     parser.add_argument('--complex', type=str, default='co_terpy')
     parser.add_argument('--spectrum_type', type=str, default='L3')
+    parser.add_argument('--initial_state', type=str, default='1')
     parser.add_argument('--batch_index', type=int, default=0)
     parser.add_argument('--batch_size', type=int, default=500)
     args = parser.parse_args()
@@ -147,7 +148,7 @@ if __name__ == "__main__":
     start_index = args.batch_index * args.batch_size
     end_index = start_index + args.batch_size
 
-    complex_spec_type = f"{args.complex}_{args.spectrum_type}"
+    complex_spec_type = f"{args.complex}_{args.spectrum_type}_state{args.initial_state}"
     batch_output_path = Path(args.output_path) / f"{complex_spec_type}_data" / f"batch_{args.batch_index:04d}"
 
     config_file = f'{complex_spec_type}_params.json'
