@@ -4,7 +4,8 @@
     "charge": "3+",
     "edge": "L",
     "initial_state": 1,
-    "rcn_file": "RCNparameter.txt"
+    "rcn_file": "RCNparameter.txt",
+    "E_2p": 756.0
   },
   "PARAMS_RIXS": {
     "energy_start": 765,

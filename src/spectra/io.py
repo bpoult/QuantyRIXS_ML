@@ -182,6 +182,9 @@ def extract_from_experiment(experiment_path):
     return {'Energy': energy, 'Intensity': intensity}
 
 def build_quanty_dicts(params: CrystalFieldParams, params_setup: dict, params_rixs: dict=None):
+    if params.E_2p is None:
+        params.E_2p = params_setup['E_2p']
+        
     params_i = {
         'NPsi_i': params.NPsi_i,
         'tenDq_3d_i': params.ten_dq_i,
