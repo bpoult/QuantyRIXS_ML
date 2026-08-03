@@ -41,11 +41,9 @@ class CrystalFieldParams:
 
     def __post_init__(self):
         if self.Ds_3d_f is None:
-            self.Ds_3d_f = 0
-            # self.Ds_3d_i
+            self.Ds_3d_f = self.Ds_3d_i
         if self.Dt_3d_f is None:
-            self.Dt_3d_f = 0
-            # self.Dt_3d_i
+            self.Dt_3d_f = self.Dt_3d_i
         if self.scalef2_3d3d_f is None:
             self.scalef2_3d3d_f = self.scalef2_3d3d_i
         if self.scalef4_3d3d_f is None:
