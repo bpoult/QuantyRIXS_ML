@@ -26,8 +26,8 @@ def standardize_spectrum(energies: np.ndarray, intensities: np.ndarray, referenc
         the intensity axis
 
     '''
-    normalized_intensities = intensities / np.sum(intensities)
-    # normalized_intensities = intensities / np.max(intensities)
+    
+    normalized_intensities = intensities / np.max(intensities)
     standardized_spectrum = np.interp(reference_grid, energies, normalized_intensities)
 
     return standardized_spectrum
