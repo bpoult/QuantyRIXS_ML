@@ -17,6 +17,7 @@ class CrystalFieldParams:
     Dt_3d_i: float
     scalef2_3d3d_i: float
     scalef4_3d3d_i: float
+    # scalef2_2p3d: float = 0.2  0.2 - 0.8
     scaleg: float
 
     # --- initial state ---
@@ -30,19 +31,21 @@ class CrystalFieldParams:
     Dt_3d_f: float = None
     scalef2_3d3d_f: float = None
     scalef4_3d3d_f: float = None
+    scalef2_2p3d: float = 0.2
     scale_3dSOC_f: float = 0.8
+    scale_2pSOC: float = 0.8
     U_3d_3d_f: float = 5.0
     U_2p_3d_f: float = 6.0
-    scalef2_2p3d: float = 0.2
-    scale_2pSOC: float = 0.8
     E_2p: float = None
    
 
     def __post_init__(self):
         if self.Ds_3d_f is None:
-            self.Ds_3d_f = self.Ds_3d_i
+            self.Ds_3d_f = 0
+            # self.Ds_3d_i
         if self.Dt_3d_f is None:
-            self.Dt_3d_f = self.Dt_3d_i
+            self.Dt_3d_f = 0
+            # self.Dt_3d_i
         if self.scalef2_3d3d_f is None:
             self.scalef2_3d3d_f = self.scalef2_3d3d_i
         if self.scalef4_3d3d_f is None:
