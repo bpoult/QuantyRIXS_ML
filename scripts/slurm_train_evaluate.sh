@@ -17,4 +17,5 @@ export PYTHONPATH=/sdf/home/p/pierop/QuantyRIXS_ML
     --complex co_terpy \
     --spectrum_type L3L2 \
     --initial_state 1 \
+    --mode CF
     --lua_file_path /sdf/home/p/pierop/QuantyRIXS_ML/

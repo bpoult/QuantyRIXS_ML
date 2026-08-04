@@ -194,11 +194,20 @@ def build_quanty_dicts(params: CrystalFieldParams, params_setup: dict, params_ri
         'scalef4_3d3d_i': params.scalef4_3d3d_i,
         'scale_3dSOC_i': params.scale_3dSOC_i,
         'U_3d_3d_i': params.U_3d_3d_i,
+        # CT parameters - initial state
+        'tenDq_L1_i': params.ten_dq_L1_i,
+        'Delta_3d_L1_i': params.Delta_3d_L1_i,
+        'Veg_3d_L1_i': params.Veg_3d_L1_i,
+        'Vt2g_3d_L1_i': params.Vt2g_3d_L1_i,
+        'tenDq_L2_i': params.ten_dq_L2_i,
+        'Delta_3d_L2_i': params.Delta_3d_L2_i,
+        'Veg_3d_L2_i': params.Veg_3d_L2_i,
+        'Vt2g_3d_L2_i': params.Vt2g_3d_L2_i,
     }
 
     params_f = {
         'NPsi_f': params.NPsi_f,
-        'tenDq_3d_f': params.ten_dq_f,  
+        'tenDq_3d_f': params.ten_dq_f,
         'Ds_3d_f': params.Ds_3d_f,
         'Dt_3d_f': params.Dt_3d_f,
         'scalef2_3d3d_f': params.scalef2_3d3d_f,
@@ -210,6 +219,15 @@ def build_quanty_dicts(params: CrystalFieldParams, params_setup: dict, params_ri
         'scaleg': params.scaleg,
         'scale_2pSOC': params.scale_2pSOC,
         'E_2p': params.E_2p,
+        # CT parameters - final state
+        'tenDq_L1_f': params.ten_dq_L1_f,
+        'Delta_3d_L1_f': params.Delta_3d_L1_f,
+        'Veg_3d_L1_f': params.Veg_3d_L1_f,
+        'Vt2g_3d_L1_f': params.Vt2g_3d_L1_f,
+        'tenDq_L2_f': params.ten_dq_L2_f,
+        'Delta_3d_L2_f': params.Delta_3d_L2_f,
+        'Veg_3d_L2_f': params.Veg_3d_L2_f,
+        'Vt2g_3d_L2_f': params.Vt2g_3d_L2_f,
     }
 
     return params_i, params_f, params_setup, params_rixs

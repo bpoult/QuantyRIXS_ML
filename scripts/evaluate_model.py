@@ -16,9 +16,10 @@ if __name__ == "__main__":
     parser.add_argument('--spectrum_type', type=str, default='L3')
     parser.add_argument('--initial_state', type=str, default='1')
     parser.add_argument('--config', type=str, default='co_terpy_L3_params.json')
+    parser.add_argument('--mode', type=str, default='CF', choices=['CF', 'CT'])
     args = parser.parse_args()
 
-    complex_spec_type = f"{args.complex}_{args.spectrum_type}_state{args.initial_state}"
+    complex_spec_type = f"{args.complex}_{args.spectrum_type}_state{args.initial_state}_{args.mode}"
 
     config_file = f"{complex_spec_type}_params.json"
     config = load_config(config_file)
