@@ -22,12 +22,12 @@ class CrystalFieldParams:
     scaleg: float
 
     # ── CF initial state fixed defaults ──────────────────────────────────────
-    NPsi_i: int = 1
+    NPsi_i: int = 10
     scale_3dSOC_i: float = 0.8
     U_3d_3d_i: float = 5.0
 
     # ── CF final state (derived from initial in __post_init__ if None) ────────
-    NPsi_f: int = 1
+    NPsi_f: int = 10
     Ds_3d_f: float = None
     Dt_3d_f: float = None
     scalef2_3d3d_f: float = None
@@ -127,8 +127,7 @@ class CrystalFieldParams:
     @classmethod
     def from_array(cls, arr: np.ndarray) -> "CrystalFieldParams":
         """Reconstruct from ML model output array."""
-        return cls(
-            # CF parameters
+        cf_kwargs = dict(
             ten_dq_i=arr[0],
             ten_dq_f=arr[1],
             Ds_3d_i=arr[2],
@@ -136,10 +135,15 @@ class CrystalFieldParams:
             scalef2_3d3d_i=arr[4],
             scalef4_3d3d_i=arr[5],
             scaleg=arr[6],
-            # CT parameters
-            Delta_3d_L1_i=arr[7],
-            Veg_3d_L1_i=arr[8],
-            Vt2g_3d_L1_i=arr[9],
-            Delta_3d_L2_i=arr[10],
-            Vt2g_3d_L2_i=arr[11],
         )
+        
+        if len(arr) >= 12:
+            cf_kwargs.update(dict(
+                Delta_3d_L1_i=arr[7],
+                Veg_3d_L1_i=arr[8],
+                Vt2g_3d_L1_i=arr[9],
+                Delta_3d_L2_i=arr[10],
+                Vt2g_3d_L2_i=arr[11],
+            ))
+        
+        return cls(**cf_kwargs)

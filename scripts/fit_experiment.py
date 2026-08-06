@@ -40,13 +40,20 @@ if __name__ == "__main__":
     # Load and standardize the experimental spectrum
     experiment_path = REPO_ROOT / 'data' / 'experimental' / args.experiment_file
     experiment_data = extract_from_experiment(experiment_path)
-    experiment_spectrum = standardize_spectrum(experiment_data['Energy'], experiment_data['Intensity'], reference_grid).reshape(1, -1)
+    experimental_spectrum = standardize_spectrum(experiment_data['Energy'], experiment_data['Intensity'], reference_grid).reshape(1, -1)
 
+    '''
     # Align the desired spectrum to another and log the energy shift
     aligned_experimental, energy_shift = align_spectrum(experiment_spectrum, reference_spectrum, reference_grid)
     logger.info(f"Energy shift applied: {energy_shift:.4f} eV")
 
     rmse, cosine_sim, pred_specs, pred_params = evaluate_model(model, aligned_experimental, None, reference_grid, args.output_path, PARAMS_SETUP, PARAMS_RIXS, args.lua_file, args.lua_file_path)
+
+
+    for now, non-aligned experimental spectra is showing better parameter predictions
+    '''
+
+    rmse, cosine_sim, pred_specs, pred_params = evaluate_model(model, experimental_spectrum, None, reference_grid, args.output_path, PARAMS_SETUP, PARAMS_RIXS, args.lua_file, args.lua_file_path)
 
     logger.info(    f"ten_dq_i={pred_params[0]:.3f} | "
                     f"ten_dq_f={pred_params[1]:.3f} | "
