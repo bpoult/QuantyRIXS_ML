@@ -22,13 +22,7 @@ def merge_datasets(data_path: Path, num_batches: int, complex_spec_type: str):
         e.g. 'co_terpy_L3L2' — used for naming output files.
     """
     all_spectra = []
-    all_ten_dq_i = []
-    all_ten_dq_f = []
-    all_Ds_3d_i = []
-    all_Dt_3d_i = []
-    all_scalef2_3d3d_i = []
-    all_scalef4_3d3d_i = []
-    all_scaleg = []
+    all_params = []
     energies = None
     metadata = None
 
@@ -42,13 +36,7 @@ def merge_datasets(data_path: Path, num_batches: int, complex_spec_type: str):
 
         with h5py.File(batch_path, 'r') as f:
             all_spectra.append(f['Spectra'][:])
-            all_ten_dq_i.append(f['Params']['ten_dq_i'][:])
-            all_ten_dq_f.append(f['Params']['ten_dq_f'][:])
-            all_Ds_3d_i.append(f['Params']['Ds_3d_i'][:])
-            all_Dt_3d_i.append(f['Params']['Dt_3d_i'][:])
-            all_scalef2_3d3d_i.append(f['Params']['scalef2_3d3d_i'][:])
-            all_scalef4_3d3d_i.append(f['Params']['scalef4_3d3d_i'][:])
-            all_scaleg.append(f['Params']['scaleg'][:])
+            all_params.append(f['Params'][:])
             if energies is None:
                 energies = f['Energies'][:]
 
@@ -63,13 +51,7 @@ def merge_datasets(data_path: Path, num_batches: int, complex_spec_type: str):
 
     # Stack all batches into single arrays
     spectra = np.concatenate(all_spectra, axis=0)
-    ten_dq_i = np.concatenate(all_ten_dq_i)
-    ten_dq_f = np.concatenate(all_ten_dq_f)
-    Ds_3d_i = np.concatenate(all_Ds_3d_i)
-    Dt_3d_i = np.concatenate(all_Dt_3d_i)
-    scalef2_3d3d_i = np.concatenate(all_scalef2_3d3d_i)
-    scalef4_3d3d_i = np.concatenate(all_scalef4_3d3d_i)
-    scaleg = np.concatenate(all_scaleg)
+    params = np.concatenate(all_params, axis=0)
 
     logger.info(f"Total simulations merged: {spectra.shape[0]}")
 
@@ -79,14 +61,7 @@ def merge_datasets(data_path: Path, num_batches: int, complex_spec_type: str):
         f.create_dataset("Energies", data=energies)
         f.create_dataset("Spectra", data=spectra)
         f.create_dataset("Last Index", data=spectra.shape[0] - 1)
-        params_grp = f.create_group("Params")
-        params_grp.create_dataset("ten_dq_i", data=ten_dq_i)
-        params_grp.create_dataset("ten_dq_f", data=ten_dq_f)
-        params_grp.create_dataset("Ds_3d_i", data=Ds_3d_i)
-        params_grp.create_dataset("Dt_3d_i", data=Dt_3d_i)
-        params_grp.create_dataset("scalef2_3d3d_i", data=scalef2_3d3d_i)
-        params_grp.create_dataset("scalef4_3d3d_i", data=scalef4_3d3d_i)
-        params_grp.create_dataset("scaleg", data=scaleg)
+        f.create_dataset("Params", data=params)
 
 
     # Save companion metadata JSON
@@ -108,10 +83,12 @@ if __name__ == "__main__":
     parser.add_argument('--data_path', type=str, default=str(REPO_ROOT / 'data'))
     parser.add_argument('--complex', type=str, default='co_terpy')
     parser.add_argument('--spectrum_type', type=str, default='L3')
+    parser.add_argument('--initial_state', type=str, default='1')
     parser.add_argument('--num_batches', type=int, default=10)
+    parser.add_argument('--mode', type=str, default='CF', choices=['CF', 'CT'])
     args = parser.parse_args()
 
-    complex_spec_type = f"{args.complex}_{args.spectrum_type}"
+    complex_spec_type = f"{args.complex}_{args.spectrum_type}_state{args.initial_state}_{args.mode}"
     data_path = Path(args.data_path) / f"{complex_spec_type}_data"
 
     merge_datasets(data_path, args.num_batches, complex_spec_type)

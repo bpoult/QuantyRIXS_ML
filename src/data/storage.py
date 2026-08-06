@@ -41,52 +41,25 @@ def save_simulation(spectrum: np.ndarray, energies: np.ndarray, params: CrystalF
             f.create_dataset("Energies", data=energies, maxshape=(None,))
             f.create_dataset("Spectra", data=spectrum.reshape(1, -1), maxshape=(None, energies.size))
 
-            # Create folder within h5py for parameter data
-            params_grp = f.create_group("Params")
-            params_grp.create_dataset("ten_dq_i", data=np.array([params.ten_dq_i]), maxshape=(None,))
-            params_grp.create_dataset("ten_dq_f", data=np.array([params.ten_dq_f]), maxshape=(None,))
-            params_grp.create_dataset("Ds_3d_i", data=np.array([params.Ds_3d_i]), maxshape=(None,))
-            params_grp.create_dataset("Dt_3d_i", data=np.array([params.Dt_3d_i]), maxshape=(None,))
-            params_grp.create_dataset("scalef2_3d3d_i", data=np.array([params.scalef2_3d3d_i]), maxshape=(None,))
-            params_grp.create_dataset("scalef4_3d3d_i", data=np.array([params.scalef4_3d3d_i]), maxshape=(None,))
-            params_grp.create_dataset("scaleg", data=np.array([params.scaleg]), maxshape=(None,))
+            # Store full parameter array — shape (1, n_params)
+            params_array = params.to_array()
+            f.create_dataset("Params", data=params_array.reshape(1, -1), maxshape=(None, len(params_array)))
+
 
         else:
             # Add new row for new data if appending 
             f['Spectra'].resize(f['Spectra'].shape[0] + 1, axis=0)
-            f['Params']['ten_dq_i'].resize(f['Params']['ten_dq_i'].shape[0] + 1, axis=0)
-            f['Params']['ten_dq_f'].resize(f['Params']['ten_dq_f'].shape[0] + 1, axis=0)
-            f['Params']['Ds_3d_i'].resize(f['Params']['Ds_3d_i'].shape[0] + 1, axis=0)
-            f['Params']['Dt_3d_i'].resize(f['Params']['Dt_3d_i'].shape[0] + 1, axis=0)
-            f['Params']['scalef2_3d3d_i'].resize(f['Params']['scalef2_3d3d_i'].shape[0] + 1, axis=0)
-            f['Params']['scalef4_3d3d_i'].resize(f['Params']['scalef4_3d3d_i'].shape[0] + 1, axis=0)
-            f['Params']['scaleg'].resize(f['Params']['scaleg'].shape[0] + 1, axis=0)
+            f['Params'].resize(f['Params'].shape[0] + 1, axis=0)
 
             # Append data to new row in datasets
             try:
                 f['Spectra'][-1] = spectrum
-
-                f['Params']['ten_dq_i'][-1] = params.ten_dq_i
-                f['Params']['ten_dq_f'][-1] = params.ten_dq_f
-                f['Params']['Ds_3d_i'][-1] = params.Ds_3d_i
-                f['Params']['Dt_3d_i'][-1] = params.Dt_3d_i
-                f['Params']['scalef2_3d3d_i'][-1] = params.scalef2_3d3d_i
-                f['Params']['scalef4_3d3d_i'][-1] = params.scalef4_3d3d_i
-                f['Params']['scaleg'][-1] = params.scaleg
-                
+                f['Params'][-1] = params.to_array()
                 f['Last Index'][()] = index
             except Exception as e:
                 # Undo the resize by shrinking back
                 f['Spectra'].resize(f['Spectra'].shape[0] - 1, axis=0)
-
-                f['Params']['ten_dq_i'].resize(f['Params']['ten_dq_i'].shape[0] - 1, axis=0)
-                f['Params']['ten_dq_f'].resize(f['Params']['ten_dq_f'].shape[0] - 1, axis=0)
-                f['Params']['Ds_3d_i'].resize(f['Params']['Ds_3d_i'].shape[0] - 1, axis=0)
-                f['Params']['Dt_3d_i'].resize(f['Params']['Dt_3d_i'].shape[0] - 1, axis=0)
-                f['Params']['scalef2_3d3d_i'].resize(f['Params']['scalef2_3d3d_i'].shape[0] - 1, axis=0)
-                f['Params']['scalef4_3d3d_i'].resize(f['Params']['scalef4_3d3d_i'].shape[0] - 1, axis=0)
-                f['Params']['scaleg'].resize(f['Params']['scaleg'].shape[0] - 1, axis=0)
-
+                f['Params'].resize(f['Params'].shape[0] - 1, axis=0)
 
                 logger.error(f"[{ index + 1 }] Simulation failed: { e } — skipping index { index }")
                 raise RuntimeError(f"Failed to append simulation with index: { index }. Error: { e }")
@@ -128,18 +101,8 @@ def load_dataset(dataset_path: str):
         index = f['Last Index']
         energies = f['Energies'][:]
         spectra = f['Spectra'][:]
-
-        # Load each parameter column then stack into shape (N, d) for from_array
-        ten_dq_i = f['Params']['ten_dq_i'][:]
-        ten_dq_f = f['Params']['ten_dq_f'][:]
-        Ds_3d_i = f['Params']['Ds_3d_i'][:]
-        Dt_3d_i = f['Params']['Dt_3d_i'][:]
-        scalef2_3d3d_i = f['Params']['scalef2_3d3d_i'][:]
-        scalef4_3d3d_i = f['Params']['scalef4_3d3d_i'][:]
-        scaleg = f['Params']['scaleg'][:]
-
-        params_arr = np.stack([ten_dq_i, ten_dq_f, Ds_3d_i, Dt_3d_i, scalef2_3d3d_i, scalef4_3d3d_i, scaleg], axis=1)  # shape (N, d (num of parameters))
-        params = [CrystalFieldParams.from_array(params_arr[i]) for i in range(len(params_arr))]
+        params_array = f['Params'][:]
+        params = [CrystalFieldParams.from_array(params_array[i]) for i in range(len(params_array))]
 
     # Load companion metadata JSON
     json_path = dataset_path.with_suffix(".json")

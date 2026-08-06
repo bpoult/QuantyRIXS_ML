@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.multioutput import MultiOutputRegressor
 import lightgbm as lgb
 from src.params import CrystalFieldParams
-from src.spectra import build_quanty_dicts, generate_inp_quanty, generate_inp_rixs, run_quanty_sim, extract_from_spec, standardize_spectrum
+from src.spectra import build_quanty_dicts, generate_inp_quanty, generate_inp_quanty_CT, generate_inp_rixs, run_quanty_sim, extract_from_spec, standardize_spectrum
 from src.utils import setup_logger
 
 logger = setup_logger()
@@ -49,9 +49,9 @@ def train_model(dataset_path: str, model_path: str):
     x, y, test_size=0.2, random_state=42)
 
     # # Noise Augmentation to training data
-    # noise_levels = np.random.uniform(low=0.0, high=0.05, size=(x_train.shape[0], 1))
-    # noise = np.random.normal(loc=0, scale=noise_levels, size=x_train.shape)
-    # x_train_noisy = np.clip(x_train + noise, 0, None)
+    noise_levels = np.random.uniform(low=0.0, high=0.02, size=(x_train.shape[0], 1))
+    noise = np.random.normal(loc=0, scale=noise_levels, size=x_train.shape)
+    x_train_noisy = np.clip(x_train + noise, 0, None)
 
     # GradientBoostingRegressor only handles 1 output at a time
     base_model = lgb.LGBMRegressor(
@@ -67,7 +67,7 @@ def train_model(dataset_path: str, model_path: str):
     # MultiOutputRegressor splits y data into d separate targets, and trains one
     # LGBMRegressor for each target
     model = MultiOutputRegressor(base_model, n_jobs=-1)
-    model.fit(x_train, y_train)
+    model.fit(x_train_noisy, y_train)
 
 
 
@@ -98,7 +98,8 @@ def evaluate_model(model: MultiOutputRegressor,
              PARAMS_SETUP: dict,
              PARAMS_RIXS: dict,
              lua_file="TM_Ledge_spec_job.lua", 
-             lua_file_path=None):
+             lua_file_path=None,
+             mode='CF'):
     """
     Evaluate the model's prediction of the parameters by re-simulating with run_quanty_sim
     
@@ -121,6 +122,8 @@ def evaluate_model(model: MultiOutputRegressor,
     lua_file_path : str or Path, optional
         Directory containing the lua file to copy into folder_path. The lua_file name will be appended.
         If None, assumes lua_file is already in folder_path
+    mode: str
+        Determines whether dataset will use Crystal Field Params or CF + charge transfer params
     
     Returns:
     --------
@@ -134,15 +137,14 @@ def evaluate_model(model: MultiOutputRegressor,
 
     y_pred = model.predict(x_test)
 
-    if y_test is not None and y_test.size > 0:
+    if y_test is not None:
         param_errors = np.abs(y_pred - y_test)
-        logger.info(f"MAE ten_dq_i: {param_errors[:, 0].mean():.4f} eV")
-        logger.info(f"MAE ten_dq_f: {param_errors[:, 1].mean():.4f} eV")
-        logger.info(f"MAE Ds_3d_i: {param_errors[:, 2].mean():.4f} eV")
-        logger.info(f"MAE Dt_3d_i: {param_errors[:, 3].mean():.4f} eV")
-        logger.info(f"MAE scalef2: {param_errors[:, 4].mean():.4f}")
-        logger.info(f"MAE scalef4: {param_errors[:, 5].mean():.4f}")
-        logger.info(f"MAE scaleg: {param_errors[:, 6].mean():.4f}")
+        param_names_cf = ['ten_dq_i', 'ten_dq_f', 'Ds_3d_i', 'Dt_3d_i', 'scalef2', 'scalef4', 'scaleg']
+        param_names_ct = ['Delta_L1_i', 'Veg_L1_i', 'Vt2g_L1_i', 'Delta_L2_i', 'Vt2g_L2_i']
+        param_names = param_names_cf + (param_names_ct if mode == 'CT' else [])
+        
+        for i, name in enumerate(param_names):
+            logger.info(f"MAE {name}: {param_errors[:, i].mean():.4f}")
 
     pred_specs = []
     successful_indices = []
@@ -155,29 +157,19 @@ def evaluate_model(model: MultiOutputRegressor,
         sim_dir = Path(output_path)/ "simulations_with_pred_params" / f"sim_{i:04d}"
         sim_dir.mkdir(parents=True, exist_ok=True)
 
-        ten_dq_i = p[0]
-        ten_dq_f = p[1]
-        Ds_3d_i = p[2]
-        Dt_3d_i = p[3]
-        scalef2_3d3d_i = p[4]
-        scalef4_3d3d_i = p[5]
-        scaleg = p[6]
-
-        cf_params = CrystalFieldParams(ten_dq_i=ten_dq_i, 
-                                       ten_dq_f=ten_dq_f,
-                                       Ds_3d_i = Ds_3d_i,
-                                       Dt_3d_i = Dt_3d_i,
-                                       scalef2_3d3d_i = scalef2_3d3d_i,
-                                       scalef4_3d3d_i = scalef4_3d3d_i,
-                                       scaleg = scaleg)
+        cf_params = CrystalFieldParams.from_array(p)
 
         # Merge sampled params with fixed constants into Quanty-ready dicts
         params_i, params_f, params_setup, params_rixs = build_quanty_dicts(
             cf_params, PARAMS_SETUP, PARAMS_RIXS
         )
 
-        # Write Quanty input files into the simulation directory
-        generate_inp_quanty(params_i, params_f, params_setup, sim_dir, 'GS_Oh.inp_quanty')
+        # Use correct input file generator based on mode
+        if mode == 'CT':
+            generate_inp_quanty_CT(params_i, params_f, params_setup, sim_dir, 'GS_Oh.inp_quanty')
+        else:
+            generate_inp_quanty(params_i, params_f, params_setup, sim_dir, 'GS_Oh.inp_quanty')
+        
         generate_inp_rixs(params_rixs, sim_dir, 'GS_Oh.inp_rixs')
 
         # Run Quanty and capture stdout to find output spectrum filenames
@@ -212,6 +204,9 @@ def evaluate_model(model: MultiOutputRegressor,
         pred_specs.append(standardized)
         successful_indices.append(i)
 
+    '''
+    add try catch just incase pred_spec is empty because the simulation didnt rin
+    '''
     pred_specs = np.stack(pred_specs)
     # Match x_test spectras to successful predicted spectrums to avoid issue in evaluation calculations
     x_test_valid = x_test[successful_indices]
