@@ -18,7 +18,6 @@ C:/
 
 # Dataset files
 /data/
-/models/
 *.h5
 *.joblib
 *.log
