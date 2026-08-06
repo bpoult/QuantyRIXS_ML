@@ -14,10 +14,10 @@ def load_config(config_file: str ):
     
     return config
 
-def load_bounds(bounds_file: str):
+def load_bounds(bounds_file: str, key: str = "CRYSTAL_FIELD"):
     bounds_path = REPO_ROOT / 'configs' / bounds_file
 
     with open(Path(bounds_path), 'r') as f:
         bounds = json.load(f)
 
-    return bounds["CRYSTAL_FIELD"]
+    return bounds[key]

@@ -7,7 +7,7 @@ from parse_rcn import parse_rcn_parameters
 from src.params import CrystalFieldParams
 
 
-def run_quanty_sim(folder_path, lua_file="TM_Ledge_spec_job.lua", lua_file_path=None, timeout=None):
+def run_quanty_sim(folder_path, lua_file, lua_file_path=None, timeout=None):
     """
     Run X-ray absorption spectrum simulation from specified folder.
     
@@ -41,15 +41,18 @@ def run_quanty_sim(folder_path, lua_file="TM_Ledge_spec_job.lua", lua_file_path=
     if not folder_path.exists():
         raise FileNotFoundError(f"Folder not found: {folder_path}")
     
+    
     # If lua_file_path is provided, copy the file to folder_path
     if lua_file_path is not None:
         lua_file_path = Path(lua_file_path)
+        
         
         # Append lua_file name to the directory path
         source_file = lua_file_path / lua_file
         
         if not source_file.exists():
             raise FileNotFoundError(f"Source lua file not found: {source_file}")
+
         
         destination = folder_path / lua_file
         shutil.copy2(source_file, destination)
@@ -60,7 +63,7 @@ def run_quanty_sim(folder_path, lua_file="TM_Ledge_spec_job.lua", lua_file_path=
         # Find existing configuration files in destination folder
         inp_quanty = [f for f in os.listdir(folder_path) if f.endswith('.inp_quanty')]
         inp_rixs = [f for f in os.listdir(folder_path) if f.endswith('.inp_rixs')]
-
+        
         # Append two variables at the top of Lua file content with the String value of the names of the config files
         lua_content = (
             f'target_file_quanty = "{inp_quanty[0] if inp_quanty else ""}"\n'
@@ -85,17 +88,16 @@ def run_quanty_sim(folder_path, lua_file="TM_Ledge_spec_job.lua", lua_file_path=
         
         # Build command - REPLACE THIS with your actual command
         command = f"Quanty {lua_file}"
-
         if lua_file:
             # Run simulation
+            print("looking for result")
             result = subprocess.run(
                 command,
                 shell=True,
                 capture_output=True,
                 text=True,
-                timeout=timeout
+                # timeout=timeout
             )
-        
         # Check if simulation succeeded
         if result.returncode != 0:
             print(f"Warning: Simulation returned non-zero exit code: {result.returncode}")
@@ -104,9 +106,6 @@ def run_quanty_sim(folder_path, lua_file="TM_Ledge_spec_job.lua", lua_file_path=
         return result
         
     finally:
-        # Delete Lua file from directory for space preservation
-        # lua_path.unlink()
-
         # Always return to original directory
         os.chdir(original_dir)
 
@@ -142,7 +141,6 @@ def extract_from_spec(spec_path):
 
     energy = data[:, 0]
     intensity = data[:, 2]
-
 
     return {'Energy': energy, 'Intensity': intensity}
 
@@ -194,11 +192,20 @@ def build_quanty_dicts(params: CrystalFieldParams, params_setup: dict, params_ri
         'scalef4_3d3d_i': params.scalef4_3d3d_i,
         'scale_3dSOC_i': params.scale_3dSOC_i,
         'U_3d_3d_i': params.U_3d_3d_i,
+        # CT parameters - initial state
+        'tenDq_L1_i': params.ten_dq_L1_i,
+        'Delta_3d_L1_i': params.Delta_3d_L1_i,
+        'Veg_3d_L1_i': params.Veg_3d_L1_i,
+        'Vt2g_3d_L1_i': params.Vt2g_3d_L1_i,
+        'tenDq_L2_i': params.ten_dq_L2_i,
+        'Delta_3d_L2_i': params.Delta_3d_L2_i,
+        'Veg_3d_L2_i': params.Veg_3d_L2_i,
+        'Vt2g_3d_L2_i': params.Vt2g_3d_L2_i,
     }
 
     params_f = {
         'NPsi_f': params.NPsi_f,
-        'tenDq_3d_f': params.ten_dq_f,  
+        'tenDq_3d_f': params.ten_dq_f,
         'Ds_3d_f': params.Ds_3d_f,
         'Dt_3d_f': params.Dt_3d_f,
         'scalef2_3d3d_f': params.scalef2_3d3d_f,
@@ -210,6 +217,15 @@ def build_quanty_dicts(params: CrystalFieldParams, params_setup: dict, params_ri
         'scaleg': params.scaleg,
         'scale_2pSOC': params.scale_2pSOC,
         'E_2p': params.E_2p,
+        # CT parameters - final state
+        'tenDq_L1_f': params.ten_dq_L1_f,
+        'Delta_3d_L1_f': params.Delta_3d_L1_f,
+        'Veg_3d_L1_f': params.Veg_3d_L1_f,
+        'Vt2g_3d_L1_f': params.Vt2g_3d_L1_f,
+        'tenDq_L2_f': params.ten_dq_L2_f,
+        'Delta_3d_L2_f': params.Delta_3d_L2_f,
+        'Veg_3d_L2_f': params.Veg_3d_L2_f,
+        'Vt2g_3d_L2_f': params.Vt2g_3d_L2_f,
     }
 
     return params_i, params_f, params_setup, params_rixs

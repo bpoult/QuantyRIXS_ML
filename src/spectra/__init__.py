@@ -1,2 +1,2 @@
-from .io import run_quanty_sim, extract_from_spec, extract_from_experiment, generate_inp_quanty, generate_inp_rixs, build_quanty_dicts
+from .io import run_quanty_sim, extract_from_spec, extract_from_experiment, generate_inp_quanty, generate_inp_quanty_CT, generate_inp_rixs, build_quanty_dicts
 from .processing import standardize_spectrum, interpolate_spectrum, align_spectrum
