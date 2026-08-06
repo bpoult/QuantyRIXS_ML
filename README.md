@@ -129,7 +129,7 @@ python3 scripts/fit_experiment.py \
     --complex co_terpy \
     --spectrum_type L3L2 \
     --initial_state 1 \
-    --mode CF \
+    --mode CF \ 
     --lua_file_path /path/to/QuantyRIXS_ML/
 ```
 
