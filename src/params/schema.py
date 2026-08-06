@@ -22,12 +22,12 @@ class CrystalFieldParams:
     scaleg: float
 
     # ── CF initial state fixed defaults ──────────────────────────────────────
-    NPsi_i: int = 50
+    NPsi_i: int = 1
     scale_3dSOC_i: float = 0.8
     U_3d_3d_i: float = 5.0
 
     # ── CF final state (derived from initial in __post_init__ if None) ────────
-    NPsi_f: int = 50
+    NPsi_f: int = 1
     Ds_3d_f: float = None
     Dt_3d_f: float = None
     scalef2_3d3d_f: float = None

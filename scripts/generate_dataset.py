@@ -162,6 +162,7 @@ def generate_dataset(N: int,
         # Ex) 'Saved File: XASisoL3_GS_Oh_1.txt' → 'XASisoL3_GS_Oh_1.txt'
         lines = sim_result.stdout.split('\n')
         saved_files = list(set([line.split()[-1] for line in lines if line.endswith('.txt')]))
+        print(saved_files)
 
          # Check to see if the saved files exist 
         if not saved_files:

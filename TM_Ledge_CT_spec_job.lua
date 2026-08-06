@@ -23,26 +23,6 @@ function Split(s, delimiter)
     return result;
 end
 
--- function find_file_with_extension(extension)
---     local handle
-
---     -- Try different OS commands
---     if package.config:sub(1,1) == '\\' then
---         -- Windows
---         handle = io.popen('dir /b *.' .. extension .. ' 2>nul')
---     else
---         -- Unix/Linux/Mac
---         handle = io.popen('ls *.' .. extension .. ' 2>/dev/null')
---     end
-
---     if handle then
---         local result = handle:read("*l")
---         handle:close()
---         return result
---     end
---     return nil
--- end
-
 -- Will search for filename passed in from Python for matching extensions, and return either filename or nil
 function find_file_with_extension(extension)
     -- filename is passed in from Python as a global variable
@@ -539,41 +519,41 @@ if energy_end > L3_L2_split then
   print('Saved file ' .. filename1b)
 
   -- RIXS spectra
-  RIXS_L3 = CreateResonantSpectra(H_f, H_i, {Tx_2p_3d, Ty_2p_3d, Tz_2p_3d}, {Tx_3d_2p, Ty_3d_2p, Tz_3d_2p},
-          Psi_i, {{'Emin1', E1min_L3}, {'Emax1', E1max_L3}, {'NE1', NE1_L3}, {'Gamma1', Gamma1_L3},
-          {'Emin2', E2min}, {'Emax2', E2max}, {'NE2', NE2}, {'Gamma2', Gamma2},
-          {'restrictions1', CalculationRestrictions}, {'restrictions2', CalculationRestrictions}})
-  RIXS_L2 = CreateResonantSpectra(H_f, H_i, {Tx_2p_3d, Ty_2p_3d, Tz_2p_3d}, {Tx_3d_2p, Ty_3d_2p, Tz_3d_2p},
-          Psi_i, {{'Emin1', E1min_L2}, {'Emax1', E1max_L2}, {'NE1', NE1_L2}, {'Gamma1', Gamma1_L2},
-          {'Emin2', E2min}, {'Emax2', E2max}, {'NE2', NE2}, {'Gamma2', Gamma2},
-          {'restrictions1', CalculationRestrictions}, {'restrictions2', CalculationRestrictions}})
-  --
-  RIXSiso_L3 = 0
-  offset = 0
-  for i = 1, 3 * 3 do
-    indices = {}
-    for j = 1, NE1_L3 + 1 do
-      table.insert(indices, j + offset)
-    end
-    RIXSiso_L3 = RIXSiso_L3 - Spectra.Element(RIXS_L3, indices)
-    offset = offset + NE1_L3 + 1
-  end
-  --
-  RIXSiso_L2 = 0
-  offset = 0
-  for i = 1, 3 * 3 do
-    indices = {}
-    for j = 1, NE1_L2 + 1 do
-      table.insert(indices, j + offset)
-    end
-    RIXSiso_L2 = RIXSiso_L2 - Spectra.Element(RIXS_L2, indices)
-    offset = offset + NE1_L2 + 1
-  end
+  -- RIXS_L3 = CreateResonantSpectra(H_f, H_i, {Tx_2p_3d, Ty_2p_3d, Tz_2p_3d}, {Tx_3d_2p, Ty_3d_2p, Tz_3d_2p},
+  --         Psi_i, {{'Emin1', E1min_L3}, {'Emax1', E1max_L3}, {'NE1', NE1_L3}, {'Gamma1', Gamma1_L3},
+  --         {'Emin2', E2min}, {'Emax2', E2max}, {'NE2', NE2}, {'Gamma2', Gamma2},
+  --         {'restrictions1', CalculationRestrictions}, {'restrictions2', CalculationRestrictions}})
+  -- RIXS_L2 = CreateResonantSpectra(H_f, H_i, {Tx_2p_3d, Ty_2p_3d, Tz_2p_3d}, {Tx_3d_2p, Ty_3d_2p, Tz_3d_2p},
+  --         Psi_i, {{'Emin1', E1min_L2}, {'Emax1', E1max_L2}, {'NE1', NE1_L2}, {'Gamma1', Gamma1_L2},
+  --         {'Emin2', E2min}, {'Emax2', E2max}, {'NE2', NE2}, {'Gamma2', Gamma2},
+  --         {'restrictions1', CalculationRestrictions}, {'restrictions2', CalculationRestrictions}})
+  -- --
+  -- RIXSiso_L3 = 0
+  -- offset = 0
+  -- for i = 1, 3 * 3 do
+  --   indices = {}
+  --   for j = 1, NE1_L3 + 1 do
+  --     table.insert(indices, j + offset)
+  --   end
+  --   RIXSiso_L3 = RIXSiso_L3 - Spectra.Element(RIXS_L3, indices)
+  --   offset = offset + NE1_L3 + 1
+  -- end
+  -- --
+  -- RIXSiso_L2 = 0
+  -- offset = 0
+  -- for i = 1, 3 * 3 do
+  --   indices = {}
+  --   for j = 1, NE1_L2 + 1 do
+  --     table.insert(indices, j + offset)
+  --   end
+  --   RIXSiso_L2 = RIXSiso_L2 - Spectra.Element(RIXS_L2, indices)
+  --   offset = offset + NE1_L2 + 1
+  -- end
 
-  RIXSiso_L3.Print({{'file', filename2a}})
-  print('Saved file ' .. filename2a)
-  RIXSiso_L2.Print({{'file', filename2b}})
-  print('Saved file ' .. filename2b)
+  -- RIXSiso_L3.Print({{'file', filename2a}})
+  -- print('Saved file ' .. filename2a)
+  -- RIXSiso_L2.Print({{'file', filename2b}})
+  -- print('Saved file ' .. filename2b)
 
 else
   E1min_L3 = energy_start - E_2p
@@ -595,25 +575,25 @@ else
   print('Saved file ' .. filename1a)
 
   -- RIXS spectra
-  RIXS_L3 = CreateResonantSpectra(H_f, H_i, {Tx_2p_3d, Ty_2p_3d, Tz_2p_3d}, {Tx_3d_2p, Ty_3d_2p, Tz_3d_2p},
-          Psi_i, {{'Emin1', E1min_L3}, {'Emax1', E1max_L3}, {'NE1', NE1_L3}, {'Gamma1', Gamma1_L3},
-          {'Emin2', E2min}, {'Emax2', E2max}, {'NE2', NE2}, {'Gamma2', Gamma2},
-          {'restrictions1', CalculationRestrictions}, {'restrictions2', CalculationRestrictions}})
-  --
+--   RIXS_L3 = CreateResonantSpectra(H_f, H_i, {Tx_2p_3d, Ty_2p_3d, Tz_2p_3d}, {Tx_3d_2p, Ty_3d_2p, Tz_3d_2p},
+--           Psi_i, {{'Emin1', E1min_L3}, {'Emax1', E1max_L3}, {'NE1', NE1_L3}, {'Gamma1', Gamma1_L3},
+--           {'Emin2', E2min}, {'Emax2', E2max}, {'NE2', NE2}, {'Gamma2', Gamma2},
+--           {'restrictions1', CalculationRestrictions}, {'restrictions2', CalculationRestrictions}})
+--   --
 
-  RIXSiso_L3 = 0
-  offset = 0
-  for i = 1, 3 * 3 do
-    indices = {}
-    for j = 1, NE1_L3 + 1 do
-      table.insert(indices, j + offset)
-    end
-    RIXSiso_L3 = RIXSiso_L3 - Spectra.Element(RIXS_L3, indices)
-    offset = offset + NE1_L3 + 1
-  end
+--   RIXSiso_L3 = 0
+--   offset = 0
+--   for i = 1, 3 * 3 do
+--     indices = {}
+--     for j = 1, NE1_L3 + 1 do
+--       table.insert(indices, j + offset)
+--     end
+--     RIXSiso_L3 = RIXSiso_L3 - Spectra.Element(RIXS_L3, indices)
+--     offset = offset + NE1_L3 + 1
+--   end
 
-  RIXSiso_L3.Print({{'file', filename2a}})
-  print('Saved file ' .. filename2a)
+--   RIXSiso_L3.Print({{'file', filename2a}})
+--   print('Saved file ' .. filename2a)
 end
 
 print('Finished.')
