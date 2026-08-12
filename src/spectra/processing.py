@@ -21,7 +21,7 @@ def standardize_spectrum(energies: np.ndarray, intensities: np.ndarray, referenc
     
     Returns:
     --------
-    standardized_spectrum : np.ndarray
+    standardized_spectrum : np.ndarray (1, n_energy_points)
         An interpolated and normalized spectrum that lies within the reference_grid energy axis and a standard convention for
         the intensity axis
 
