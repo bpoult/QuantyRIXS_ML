@@ -1,6 +1,8 @@
 import numpy as np
 import subprocess
+import warnings
 
+from sklearn.exceptions import DataConversionWarning
 from joblib import dump
 from pathlib import Path
 from src.data import load_dataset
@@ -134,6 +136,7 @@ def evaluate_model(model: MultiOutputRegressor,
     """
 
     logger.info(f'Evaluation Beginning')
+    warnings.filterwarnings('ignore', category=UserWarning)
 
     y_pred = model.predict(x_test)
 
