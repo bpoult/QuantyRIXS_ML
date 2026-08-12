@@ -65,7 +65,7 @@ if __name__ == "__main__":
     logger.info("=" * 40)
     for i, name in enumerate(param_names):
         logger.info(f"  {name:<15} = {pred_params[i]:.4f}")
-    logger.info()
+    logger.info("")
 
    # Step 1: Access spectra and parameters from dataset
     spectra, _, params, _, _ = load_dataset(dataset_path)
