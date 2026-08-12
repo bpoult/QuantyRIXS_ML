@@ -32,7 +32,7 @@ if __name__ == "__main__":
     config_file = f"{complex_spec_type}_params.json"
     model_path = f"models/gradient_boost_{complex_spec_type}.joblib"
     reference_path = f"data/{complex_spec_type}_data/{complex_spec_type}_reference_spectrum.npy"
-    dataset_path = REPO_ROOT / 'data' / complex_spec_type / 'dataset.h5'
+    dataset_path = REPO_ROOT / 'data' / f'{complex_spec_type}_data' / 'dataset.h5'
 
     # Load in all files
     config = load_config(config_file)
