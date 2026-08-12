@@ -1,5 +1,6 @@
 import numpy as np
 import argparse
+import warnings
 from joblib import load
 from pathlib import Path
 from src.spectra import extract_from_experiment, standardize_spectrum, align_spectrum
@@ -9,6 +10,7 @@ from src.data import load_dataset
 
 logger = setup_logger()
 REPO_ROOT = Path(__file__).parent.parent
+warnings.filterwarnings('ignore', message='X does not have valid feature names')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Fit experimental XAS spectrum using trained ML model")
