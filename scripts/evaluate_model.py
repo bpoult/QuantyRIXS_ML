@@ -3,11 +3,14 @@ import argparse
 from src.models.model import train_model, evaluate_model
 from src.utils import setup_logger, load_config
 from pathlib import Path
+import warnings
+
 
 logger = setup_logger()
 
 if __name__ == "__main__":
     REPO_ROOT = Path(__file__).parent.parent
+    warnings.filterwarnings('ignore', message='X does not have valid feature names')
 
     parser = argparse.ArgumentParser(description="Evaluate gradient boosting model on XAS dataset")
     parser.add_argument('--lua_file', type=str, default='TM_Ledge_spec_job.lua')

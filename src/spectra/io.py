@@ -90,7 +90,6 @@ def run_quanty_sim(folder_path, lua_file, lua_file_path=None, timeout=None):
         command = f"Quanty {lua_file}"
         if lua_file:
             # Run simulation
-            print("looking for result")
             result = subprocess.run(
                 command,
                 shell=True,
