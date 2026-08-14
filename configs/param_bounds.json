@@ -1,0 +1,13 @@
+{
+  "CRYSTAL_FIELD": {
+    "UPPER_BOUNDS": [5,       1,      0.2,     0.1,        0.8,           0.8,         0.8],
+    "LOWER_BOUNDS": [0.5,    0.75,   -0.2,    -0.1,        0.2,           0.2,         0.2],
+    "//": "         10DQ_i, 10DQ_f, Ds_3d_i, Dt_3d_i, scalef2_3d3d_i, scalef4_3d3d_i, scaleg"
+  },
+
+  "CHARGE_TRANSFER": {
+    "UPPER_BOUNDS": [4,                 4,             2,            5,             3,            0,              1.0,             1.0,                2,              1.0],
+    "LOWER_BOUNDS": [-4,                0,             0,            0,             0,           -2,              0.75,            0.75,               0,              0.75],
+    "//":           "Delta_3d_L1_i, Veg_3d_L1_i, Vt2g_3d_L1_i, Delta_3d_L2_i, Vt2g_3d_L2_i,Delta_L1_offset, Veg_L1_reduction, Vt2g_L1_reduction, Delta_L2_offset, Vt2g_L2_reduction"
+  }
+}

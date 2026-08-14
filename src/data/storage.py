@@ -41,29 +41,28 @@ def save_simulation(spectrum: np.ndarray, energies: np.ndarray, params: CrystalF
             f.create_dataset("Energies", data=energies, maxshape=(None,))
             f.create_dataset("Spectra", data=spectrum.reshape(1, -1), maxshape=(None, energies.size))
 
-            # Create folder within h5py for parameter data
-            params_grp = f.create_group("Params")
-            params_grp.create_dataset("ten_dq_i", data=np.array([params.ten_dq_i]), maxshape=(None,))
-            params_grp.create_dataset("ten_dq_f", data=np.array([params.ten_dq_f]), maxshape=(None,))
+            # Store full parameter array — shape (1, n_params)
+            params_array = params.to_array()
+            f.create_dataset("Params", data=params_array.reshape(1, -1), maxshape=(None, len(params_array)))
+
 
         else:
             # Add new row for new data if appending 
             f['Spectra'].resize(f['Spectra'].shape[0] + 1, axis=0)
-            f['Params']['ten_dq_i'].resize(f['Params']['ten_dq_i'].shape[0] + 1, axis=0)
-            f['Params']['ten_dq_f'].resize(f['Params']['ten_dq_f'].shape[0] + 1, axis=0)
+            f['Params'].resize(f['Params'].shape[0] + 1, axis=0)
 
             # Append data to new row in datasets
             try:
                 f['Spectra'][-1] = spectrum
-                f['Params']['ten_dq_i'][-1] = params.ten_dq_i
-                f['Params']['ten_dq_f'][-1] = params.ten_dq_f
+                f['Params'][-1] = params.to_array()
+                f['Last Index'][()] = index
             except Exception as e:
                 # Undo the resize by shrinking back
                 f['Spectra'].resize(f['Spectra'].shape[0] - 1, axis=0)
-                f['Params']['ten_dq_i'].resize(f['Params']['ten_dq_i'].shape[0] - 1, axis=0)
-                f['Params']['ten_dq_f'].resize(f['Params']['ten_dq_f'].shape[0] - 1, axis=0)
-                logger.error(f"[{i+1}/{N}] Simulation failed: {e} — skipping index {i}")
-                raise RuntimeError(f"Failed to append simulation with index: {index}. Error: {e}")
+                f['Params'].resize(f['Params'].shape[0] - 1, axis=0)
+
+                logger.error(f"[{ index + 1 }] Simulation failed: { e } — skipping index { index }")
+                raise RuntimeError(f"Failed to append simulation with index: { index }. Error: { e }")
 
         # Only write metadata file once on write as it will remain constant
         if mode == "w":
@@ -72,14 +71,14 @@ def save_simulation(spectrum: np.ndarray, energies: np.ndarray, params: CrystalF
                 json.dump(metadata, json_file, indent=4)
 
 
-def load_dataset(input_path: str):
+def load_dataset(dataset_path: str):
     """
     Load a dataset of Quanty simulations from HDF5 format with metadata.
 
     Parameters:
     -----------
     input_path : str
-        Path to save the .h5 file.
+        Path to open the .h5 file.
 
     Returns:
     --------
@@ -95,23 +94,18 @@ def load_dataset(input_path: str):
         Last simulation index completed by loop
     """
 
-    input_path = Path(input_path)
+    dataset_path = Path(dataset_path)
 
     # Read arrays from HDF5 and reconstruct CrystalFieldParams objects
-    with h5py.File(input_path, "r") as f:
+    with h5py.File(dataset_path, "r") as f:
         index = f['Last Index']
         energies = f['Energies'][:]
         spectra = f['Spectra'][:]
-
-        # Load each parameter column then stack into shape (N, 4) for from_array
-        ten_dq_i = f['Params']['ten_dq_i'][:]
-        ten_dq_f = f['Params']['ten_dq_f'][:]
-        
-        params_arr = np.stack([ten_dq_i, ten_dq_f], axis=1)  # shape (N, 2 (num of parameters))
-        params = [CrystalFieldParams.from_array(params_arr[i]) for i in range(len(params_arr))]
+        params_array = f['Params'][:]
+        params = [CrystalFieldParams.from_array(params_array[i]) for i in range(len(params_array))]
 
     # Load companion metadata JSON
-    json_path = input_path.with_suffix(".json")
+    json_path = dataset_path.with_suffix(".json")
     with open(json_path, "r") as f:
         metadata = json.load(f)
 

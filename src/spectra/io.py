@@ -7,7 +7,7 @@ from parse_rcn import parse_rcn_parameters
 from src.params import CrystalFieldParams
 
 
-def run_quanty_sim(folder_path, lua_file="greenMLCT_Co3d6_D4h_RCN_conf_job.lua", lua_file_path=None, timeout=None):
+def run_quanty_sim(folder_path, lua_file, lua_file_path=None, timeout=None):
     """
     Run X-ray absorption spectrum simulation from specified folder.
     
@@ -41,15 +41,18 @@ def run_quanty_sim(folder_path, lua_file="greenMLCT_Co3d6_D4h_RCN_conf_job.lua",
     if not folder_path.exists():
         raise FileNotFoundError(f"Folder not found: {folder_path}")
     
+    
     # If lua_file_path is provided, copy the file to folder_path
     if lua_file_path is not None:
         lua_file_path = Path(lua_file_path)
+        
         
         # Append lua_file name to the directory path
         source_file = lua_file_path / lua_file
         
         if not source_file.exists():
             raise FileNotFoundError(f"Source lua file not found: {source_file}")
+
         
         destination = folder_path / lua_file
         shutil.copy2(source_file, destination)
@@ -60,7 +63,7 @@ def run_quanty_sim(folder_path, lua_file="greenMLCT_Co3d6_D4h_RCN_conf_job.lua",
         # Find existing configuration files in destination folder
         inp_quanty = [f for f in os.listdir(folder_path) if f.endswith('.inp_quanty')]
         inp_rixs = [f for f in os.listdir(folder_path) if f.endswith('.inp_rixs')]
-
+        
         # Append two variables at the top of Lua file content with the String value of the names of the config files
         lua_content = (
             f'target_file_quanty = "{inp_quanty[0] if inp_quanty else ""}"\n'
@@ -84,8 +87,7 @@ def run_quanty_sim(folder_path, lua_file="greenMLCT_Co3d6_D4h_RCN_conf_job.lua",
         os.chdir(folder_path)
         
         # Build command - REPLACE THIS with your actual command
-        command = f"quanty {lua_file}"
-
+        command = f"Quanty {lua_file}"
         if lua_file:
             # Run simulation
             result = subprocess.run(
@@ -93,9 +95,8 @@ def run_quanty_sim(folder_path, lua_file="greenMLCT_Co3d6_D4h_RCN_conf_job.lua",
                 shell=True,
                 capture_output=True,
                 text=True,
-                timeout=timeout
+                # timeout=timeout
             )
-        
         # Check if simulation succeeded
         if result.returncode != 0:
             print(f"Warning: Simulation returned non-zero exit code: {result.returncode}")
@@ -104,25 +105,18 @@ def run_quanty_sim(folder_path, lua_file="greenMLCT_Co3d6_D4h_RCN_conf_job.lua",
         return result
         
     finally:
-        # Delete Lua file from directory for space preservation
-        lua_path.unlink()
-
         # Always return to original directory
         os.chdir(original_dir)
 
 
-def extract_from_spec(folder_path, spec_file, timeout=None):
+def extract_from_spec(spec_path):
     """
     Take the Quanty XAS output data then extract the Energy and Intensity Column
 
     Parameters:
     -----------
-    folder_path : str or Path
-        Path to folder containing .txt file
-    spec_file : str
-        Name of the Quanty Output file to parse
-    timeout : int, optional
-        Maximum time in seconds to wait for simulation (default: None, no timeout)
+    spec_path : str
+        Path to the file the Quanty output .txt to parse
     
     Returns:
     --------
@@ -135,15 +129,9 @@ def extract_from_spec(folder_path, spec_file, timeout=None):
     """
 
     #Convert to Path object for easier manipulation
-    folder_path = Path(folder_path)
-
-    # Verify folder exists
-    if not folder_path.exists():
-        raise FileNotFoundError(f"Folder not found: {folder_path}")
+    spec_path = Path(spec_path)
     
     # Verify spec_file exists in folder
-    spec_path = folder_path / spec_file
-
     if not spec_path.exists():
         raise FileNotFoundError(f"File not found: {spec_path}")
     
@@ -153,10 +141,47 @@ def extract_from_spec(folder_path, spec_file, timeout=None):
     energy = data[:, 0]
     intensity = data[:, 2]
 
+    return {'Energy': energy, 'Intensity': intensity}
+
+def extract_from_experiment(experiment_path):
+    """
+    Take the Experimental Spectrum output data then extract the Energy and Intensity Column
+
+    Parameters:
+    -----------
+    experiment_path : str or Path
+        Path to the experiment output .txt file to parse
+    
+    Returns:
+    --------
+    result : {'Energy': energy, 'Intensity': intensity}
+        Dictionary that contains 2 np.arrays as the values
+    
+    Raises:
+    -------
+    FileNotFoundError : if folder or output file doesn't exist
+    """
+
+    #Convert to Path object for easier manipulation
+    experiment_path = Path(experiment_path)
+    
+    # Verify spec_file exists in folder
+    if not experiment_path.exists():
+        raise FileNotFoundError(f"File not found: {experiment_path}")
+    
+    # assign data var with numerical data from text file, skip first 5 rows of header lines
+    data = np.loadtxt(experiment_path)
+
+    energy = data[:, 0]
+    intensity = data[:, 1]
+
 
     return {'Energy': energy, 'Intensity': intensity}
 
-def build_quanty_dicts(params: CrystalFieldParams,params_setup: dict, params_rixs: dict=None):
+def build_quanty_dicts(params: CrystalFieldParams, params_setup: dict, params_rixs: dict=None):
+    if params.E_2p is None:
+        params.E_2p = params_setup['E_2p']
+        
     params_i = {
         'NPsi_i': params.NPsi_i,
         'tenDq_3d_i': params.ten_dq_i,
@@ -166,11 +191,20 @@ def build_quanty_dicts(params: CrystalFieldParams,params_setup: dict, params_rix
         'scalef4_3d3d_i': params.scalef4_3d3d_i,
         'scale_3dSOC_i': params.scale_3dSOC_i,
         'U_3d_3d_i': params.U_3d_3d_i,
+        # CT parameters - initial state
+        'tenDq_L1_i': params.ten_dq_L1_i,
+        'Delta_3d_L1_i': params.Delta_3d_L1_i,
+        'Veg_3d_L1_i': params.Veg_3d_L1_i,
+        'Vt2g_3d_L1_i': params.Vt2g_3d_L1_i,
+        'tenDq_L2_i': params.ten_dq_L2_i,
+        'Delta_3d_L2_i': params.Delta_3d_L2_i,
+        'Veg_3d_L2_i': params.Veg_3d_L2_i,
+        'Vt2g_3d_L2_i': params.Vt2g_3d_L2_i,
     }
 
     params_f = {
         'NPsi_f': params.NPsi_f,
-        'tenDq_3d_f': params.ten_dq_f,  
+        'tenDq_3d_f': params.ten_dq_f,
         'Ds_3d_f': params.Ds_3d_f,
         'Dt_3d_f': params.Dt_3d_f,
         'scalef2_3d3d_f': params.scalef2_3d3d_f,
@@ -182,6 +216,15 @@ def build_quanty_dicts(params: CrystalFieldParams,params_setup: dict, params_rix
         'scaleg': params.scaleg,
         'scale_2pSOC': params.scale_2pSOC,
         'E_2p': params.E_2p,
+        # CT parameters - final state
+        'tenDq_L1_f': params.ten_dq_L1_f,
+        'Delta_3d_L1_f': params.Delta_3d_L1_f,
+        'Veg_3d_L1_f': params.Veg_3d_L1_f,
+        'Vt2g_3d_L1_f': params.Vt2g_3d_L1_f,
+        'tenDq_L2_f': params.ten_dq_L2_f,
+        'Delta_3d_L2_f': params.Delta_3d_L2_f,
+        'Veg_3d_L2_f': params.Veg_3d_L2_f,
+        'Vt2g_3d_L2_f': params.Vt2g_3d_L2_f,
     }
 
     return params_i, params_f, params_setup, params_rixs

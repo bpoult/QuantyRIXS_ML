@@ -15,3 +15,9 @@ C:/
 
 # Logs
 *.log
+
+# Dataset files
+/data/
+*.h5
+*.joblib
+*.log
